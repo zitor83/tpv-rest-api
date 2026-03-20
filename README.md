@@ -88,9 +88,9 @@ En Windows con perfil `local` (H2):
 
 Documentacion API:
 
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI JSON: `http://localhost:8080/api-docs`
-- H2 Console (perfil `local`): `http://localhost:8080/h2-console`
+- Swagger UI: `http://localhost:8081/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8081/api-docs`
+- H2 Console (perfil `local`): `http://localhost:8081/h2-console`
 
 ## Como ejecutar tests
 

@@ -22,5 +22,14 @@ public class ApiResponse<T> {
             .timestamp(Instant.now())
             .build();
     }
+
+    public static <T> ApiResponse<T> error(String message, T data) {
+        return ApiResponse.<T>builder()
+            .success(false)
+            .message(message)
+            .data(data)
+            .timestamp(Instant.now())
+            .build();
+    }
 }
 
