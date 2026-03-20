@@ -50,6 +50,11 @@ Requisitos:
 - Maven Wrapper (`mvnw`/`mvnw.cmd`)
 - PostgreSQL (solo para ejecucion normal)
 
+Opciones de ejecucion:
+
+- `default`: usa PostgreSQL.
+- `local`: usa H2 en memoria (no requiere PostgreSQL).
+
 Configura variables de entorno opcionales:
 
 - `DB_URL` (por defecto: `jdbc:postgresql://localhost:5432/tpv`)
@@ -63,16 +68,29 @@ Ejecucion local:
 ./mvnw spring-boot:run
 ```
 
+Ejecucion con perfil `local` (H2):
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+
 En Windows:
 
 ```bash
 ./mvnw.cmd spring-boot:run
 ```
 
+En Windows con perfil `local` (H2):
+
+```bash
+./mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=local
+```
+
 Documentacion API:
 
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
 - OpenAPI JSON: `http://localhost:8080/api-docs`
+- H2 Console (perfil `local`): `http://localhost:8080/h2-console`
 
 ## Como ejecutar tests
 
