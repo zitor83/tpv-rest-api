@@ -41,6 +41,9 @@ public final class Product {
         if (!(object instanceof Product other)) {
             return false;
         }
+        if (id == null || other.id == null) {
+            return false;
+        }
         return Objects.equals(id, other.id);
     }
 
@@ -50,10 +53,7 @@ public final class Product {
     }
 
     private static Long validateId(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("id is required");
-        }
-        if (id <= 0) {
+        if (id != null && id <= 0) {
             throw new IllegalArgumentException("id must be greater than 0");
         }
         return id;
