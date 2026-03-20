@@ -26,7 +26,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/h2-console/**", "/actuator/health").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/products/**").authenticated()
+                .requestMatchers("/api/products/**").permitAll()
                 .anyRequest().authenticated());
 
         // Punto de extension para JWT:
