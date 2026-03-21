@@ -2,6 +2,8 @@ package com.ortiz.tpv_backend.infrastructure.rest;
 
 import com.ortiz.tpv_backend.application.dto.AuthResponseDTO;
 import com.ortiz.tpv_backend.application.dto.LoginRequestDTO;
+import com.ortiz.tpv_backend.application.dto.UserResponseDTO;
+import com.ortiz.tpv_backend.application.usecase.GetMeUseCase;
 import com.ortiz.tpv_backend.application.usecase.LoginUseCase;
 import com.ortiz.tpv_backend.domain.port.TokenProviderPort;
 import org.junit.jupiter.api.Test;
@@ -10,11 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +33,9 @@ class AuthControllerValidationTest {
 
     @MockitoBean
     private LoginUseCase loginUseCase;
+
+    @MockitoBean
+    private GetMeUseCase getMeUseCase;
 
     @MockitoBean
     private TokenProviderPort tokenProviderPort;
@@ -72,6 +79,23 @@ class AuthControllerValidationTest {
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.message").value("Autenticacion correcta"))
             .andExpect(jsonPath("$.data.token").value("jwt-token"))
+            .andExpect(jsonPath("$.data.username").value("admin"))
+            .andExpect(jsonPath("$.data.role").value("ROLE_ADMIN"))
+            .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    void givenAuthenticatedPrincipal_whenGetMe_thenReturnUserInfo() throws Exception {
+        when(getMeUseCase.execute("admin")).thenReturn(new UserResponseDTO(1L, "admin", "ROLE_ADMIN"));
+
+        UsernamePasswordAuthenticationToken authentication =
+            new UsernamePasswordAuthenticationToken("admin", null);
+
+        mockMvc.perform(get("/api/auth/me").principal(authentication))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.message").value("Usuario recuperado correctamente"))
+            .andExpect(jsonPath("$.data.id").value(1))
             .andExpect(jsonPath("$.data.username").value("admin"))
             .andExpect(jsonPath("$.data.role").value("ROLE_ADMIN"))
             .andExpect(jsonPath("$.timestamp").exists());

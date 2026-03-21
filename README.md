@@ -166,6 +166,27 @@ Autentica un usuario y devuelve un token JWT.
   }
   ```
 
+#### `GET /api/auth/me`
+
+Recupera los datos de la sesion actual usando el token JWT enviado en el header `Authorization`.
+
+- **Headers**:
+  - `Authorization: Bearer <token>`
+
+- **Respuesta Exitosa (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Usuario recuperado correctamente",
+    "data": {
+      "id": 1,
+      "username": "admin",
+      "role": "ROLE_ADMIN"
+    },
+    "timestamp": "2026-03-21T23:05:00Z"
+  }
+  ```
+
 - **Respuesta Exitosa (200 OK)**:
   ```json
   {
@@ -226,6 +247,8 @@ Obtiene el detalle completo de un ticket por identificador.
 Lista todos los tickets de venta.
 
 ## 🧪 Cómo Ejecutar los Tests
+
+> Nota: excepto documentacion y autenticacion (`/api/auth/**`), el resto de rutas requiere JWT.
 
 El proyecto incluye tests unitarios que también utilizan una base de datos H2 en memoria.
 
