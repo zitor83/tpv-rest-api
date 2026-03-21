@@ -1,11 +1,13 @@
 package com.ortiz.tpv_backend.domain.port;
 
+import com.ortiz.tpv_backend.domain.model.User;
+
 public interface TokenProviderPort {
 
-    String generateToken(String subject);
+    String generateToken(User user);
 
-    boolean isTokenValid(String token);
+    boolean isValid(String token);
 
-    String extractSubject(String token);
+    String extractUsername(String token);
 }
 

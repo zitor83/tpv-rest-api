@@ -2,6 +2,7 @@ package com.ortiz.tpv_backend.infrastructure.rest;
 
 import com.ortiz.tpv_backend.application.usecase.CreateProductUseCase;
 import com.ortiz.tpv_backend.application.usecase.ListProductsUseCase;
+import com.ortiz.tpv_backend.domain.port.TokenProviderPort;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,6 +29,9 @@ class ProductControllerValidationTest {
 
     @MockitoBean
     private ListProductsUseCase listProductsUseCase;
+
+    @MockitoBean
+    private TokenProviderPort tokenProviderPort;
 
     @Test
     void givenInvalidRequest_whenCreateProduct_thenReturnApiResponseValidationError() throws Exception {

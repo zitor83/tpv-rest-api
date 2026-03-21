@@ -148,6 +148,38 @@ Crea un nuevo producto en el sistema.
 
 ### Tickets (`/api/orders`)
 
+### Autenticacion (`/api/auth`)
+
+#### `POST /api/auth/login`
+
+Autentica un usuario y devuelve un token JWT.
+
+- **Credenciales iniciales de desarrollo**:
+  - `username`: `admin`
+  - `password`: `admin123`
+
+- **Cuerpo de la Peticion (Request Body)**:
+  ```json
+  {
+    "username": "admin",
+    "password": "admin123"
+  }
+  ```
+
+- **Respuesta Exitosa (200 OK)**:
+  ```json
+  {
+    "success": true,
+    "message": "Autenticacion correcta",
+    "data": {
+      "token": "eyJhbGciOiJIUzI1NiJ9...",
+      "username": "admin",
+      "role": "ROLE_ADMIN"
+    },
+    "timestamp": "2026-03-21T23:00:00Z"
+  }
+  ```
+
 #### `POST /api/orders`
 
 Crea un ticket de venta. El frontend solo envia `productId` y `quantity`; el precio real se calcula en backend.
@@ -218,7 +250,7 @@ Para ejecutar la aplicación contra una base de datos PostgreSQL real (por ejemp
 
 ## 🗺️ Próximos Pasos
 
-- [ ] Implementar autenticación JWT completa (login, filtro, refresh token).
+- [ ] Incorporar refresh token y revocacion de token.
 - [ ] Incorporar migraciones de base de datos (Flyway o Liquibase) para gestionar cambios en el esquema.
 - [ ] Aumentar la cobertura de tests con tests de integración por endpoint.
 - [ ] Endurecer la seguridad: roles/permisos, limitación de peticiones (rate limiting) y configuración de CORS por entorno.
