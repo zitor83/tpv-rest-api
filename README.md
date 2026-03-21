@@ -146,6 +146,53 @@ Crea un nuevo producto en el sistema.
   }'
   ```
 
+### Tickets (`/api/orders`)
+
+#### `POST /api/orders`
+
+Crea un ticket de venta. El frontend solo envia `productId` y `quantity`; el precio real se calcula en backend.
+
+- **Cuerpo de la Peticion (Request Body)**:
+  ```json
+  {
+    "lines": [
+      { "productId": 1, "quantity": 2 },
+      { "productId": 3, "quantity": 1 }
+    ]
+  }
+  ```
+
+- **Respuesta Exitosa (201 Created)**:
+  ```json
+  {
+    "success": true,
+    "message": "Ticket creado correctamente",
+    "data": {
+      "id": 1,
+      "createdAt": "2026-03-21T15:30:00",
+      "totalAmount": 20.50,
+      "lines": [
+        {
+          "productId": 1,
+          "productName": "Hamburguesa Clasica",
+          "quantity": 2,
+          "unitPrice": 8.50,
+          "subTotal": 17.00
+        }
+      ]
+    },
+    "timestamp": "2026-03-21T15:30:01Z"
+  }
+  ```
+
+#### `GET /api/orders/{id}`
+
+Obtiene el detalle completo de un ticket por identificador.
+
+#### `GET /api/orders`
+
+Lista todos los tickets de venta.
+
 ## 🧪 Cómo Ejecutar los Tests
 
 El proyecto incluye tests unitarios que también utilizan una base de datos H2 en memoria.
