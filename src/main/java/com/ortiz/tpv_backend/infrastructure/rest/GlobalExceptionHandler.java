@@ -39,5 +39,11 @@ public class GlobalExceptionHandler {
         ApiResponse<Void> response = ApiResponse.error(exception.getMessage(), null);
         return ResponseEntity.badRequest().body(response);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<String>> handleGeneralException(Exception exception) {
+        ApiResponse<String> response = ApiResponse.error("Error interno del servidor", exception.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
 }
 
