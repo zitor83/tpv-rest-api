@@ -5,11 +5,15 @@ import com.ortiz.tpv_backend.application.dto.ExpenseResponseDTO;
 import com.ortiz.tpv_backend.domain.model.Expense;
 import com.ortiz.tpv_backend.domain.port.ExpenseRepositoryPort;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
 import java.util.UUID;
 
+@Service
 @RequiredArgsConstructor
+@Transactional
 public class CreateExpenseUseCaseImpl implements CreateExpenseUseCase {
 
     private final ExpenseRepositoryPort expenseRepositoryPort;
