@@ -14,13 +14,16 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface OrderPersistenceMapper {
 
+    @Mapping(target = "isForTakeaway", expression = "java(order.isForTakeaway())")
     OrderEntity toEntity(Order order);
 
+    @Mapping(target = "isForTakeaway", expression = "java(entity.isForTakeaway())")
     Order toDomain(OrderEntity entity);
 
     List<Order> toDomainList(List<OrderEntity> entities);
 
     @Mapping(target = "order", ignore = true)
+    @Mapping(target = "selectedIngredients", expression = "java(orderLine.getSelectedIngredients())")
     OrderLineEntity toEntity(OrderLine orderLine);
 
     OrderLine toDomain(OrderLineEntity entity);

@@ -17,6 +17,7 @@ public final class OrderLine {
     private final String notes;
     private final Map<String, List<String>> selectedIngredients;
 
+    @Default
     public OrderLine(
         Long id,
         String productId,
@@ -36,7 +37,6 @@ public final class OrderLine {
         this.selectedIngredients = sanitizeSelectedIngredients(selectedIngredients);
     }
 
-    @Default
     public OrderLine(Long id, String productId, String productName, BigDecimal unitPrice, int quantity) {
         this(id, productId, productName, unitPrice, quantity, null, null);
     }
@@ -69,7 +69,7 @@ public final class OrderLine {
         return notes;
     }
 
-    public Map<String, List<String>> selectedIngredients() {
+    public Map<String, List<String>> getSelectedIngredients() {
         return selectedIngredients;
     }
 

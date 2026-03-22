@@ -10,19 +10,28 @@ CREATE TABLE IF NOT EXISTS products (
 );
 
 CREATE TABLE IF NOT EXISTS orders (
-    id BIGSERIAL PRIMARY KEY,
+    id VARCHAR(36) PRIMARY KEY,
     created_at TIMESTAMP NOT NULL,
-    total_amount NUMERIC(19, 2) NOT NULL
+    total_amount NUMERIC(19, 2) NOT NULL,
+    table_number VARCHAR(100),
+    is_for_takeaway BOOLEAN NOT NULL,
+    customer_name VARCHAR(255),
+    custom_notes VARCHAR(500),
+    payment_method VARCHAR(20),
+    status VARCHAR(20) NOT NULL,
+    tip NUMERIC(19, 2) NOT NULL DEFAULT 0.00
 );
 
 CREATE TABLE IF NOT EXISTS order_lines (
     id BIGSERIAL PRIMARY KEY,
-    order_id BIGINT NOT NULL,
-    product_id BIGINT NOT NULL,
+    order_id VARCHAR(36) NOT NULL,
+    product_id VARCHAR(36) NOT NULL,
     product_name VARCHAR(255) NOT NULL,
     unit_price NUMERIC(19, 2) NOT NULL,
     quantity INTEGER NOT NULL,
     sub_total NUMERIC(19, 2) NOT NULL,
+    notes VARCHAR(255),
+    selected_ingredients JSON,
     CONSTRAINT fk_order_lines_order
         FOREIGN KEY (order_id)
         REFERENCES orders (id)

@@ -16,7 +16,7 @@ public interface OrderMapper {
     @Mapping(target = "isForTakeaway", expression = "java(order.isForTakeaway())")
     OrderResponseDTO toResponse(Order order);
 
-    @Mapping(target = "selectedIngredients", expression = "java(orderLine.selectedIngredients())")
+    @Mapping(target = "selectedIngredients", expression = "java(orderLine.getSelectedIngredients())")
     OrderLineResponseDTO toResponse(OrderLine orderLine);
 
     List<OrderResponseDTO> toResponseList(List<Order> orders);

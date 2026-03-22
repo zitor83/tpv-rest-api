@@ -25,6 +25,7 @@ public final class Order {
     private final String status;
     private final BigDecimal tip;
 
+    @Default
     public Order(
         String id,
         LocalDateTime createdAt,
@@ -54,7 +55,6 @@ public final class Order {
         validateServiceModeRules(this.isForTakeaway, this.tableNumber);
     }
 
-    @Default
     public Order(String id, LocalDateTime createdAt, List<OrderLine> lines) {
         this(id, createdAt, lines, false, null, null, null, null, null, null);
     }

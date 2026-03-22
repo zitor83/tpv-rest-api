@@ -14,8 +14,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "order_lines")
@@ -35,7 +39,7 @@ public class OrderLineEntity {
     private OrderEntity order;
 
     @Column(name = "product_id", nullable = false)
-    private Long productId;
+    private String productId;
 
     @Column(name = "product_name", nullable = false)
     private String productName;
@@ -48,5 +52,12 @@ public class OrderLineEntity {
 
     @Column(name = "sub_total", nullable = false, precision = 19, scale = 2)
     private BigDecimal subTotal;
+
+    @Column(length = 255)
+    private String notes;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "selected_ingredients")
+    private Map<String, List<String>> selectedIngredients;
 }
 

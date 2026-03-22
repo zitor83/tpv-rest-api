@@ -31,7 +31,19 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
 
     @Override
     public Optional<Order> findById(Long id) {
-        return orderJpaRepository.findById(id)
+        if (id == null) {
+            return Optional.empty();
+        }
+        return findById(id.toString());
+    }
+
+    @Override
+    public Optional<Order> findById(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            return Optional.empty();
+        }
+
+        return orderJpaRepository.findById(id.trim())
             .map(orderPersistenceMapper::toDomain);
     }
 
