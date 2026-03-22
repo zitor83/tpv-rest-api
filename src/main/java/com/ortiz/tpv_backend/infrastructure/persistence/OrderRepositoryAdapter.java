@@ -8,6 +8,7 @@ import com.ortiz.tpv_backend.infrastructure.persistence.repository.OrderJpaRepos
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,6 +51,17 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
     @Override
     public List<Order> findAll() {
         return orderPersistenceMapper.toDomainList(orderJpaRepository.findAllByOrderByCreatedAtDesc());
+    }
+
+    @Override
+    public List<Order> findByDateBetween(LocalDateTime start, LocalDateTime end) {
+        Objects.requireNonNull(start, "start is required");
+        Objects.requireNonNull(end, "end is required");
+        if (end.isBefore(start)) {
+            throw new IllegalArgumentException("end must be greater than or equal to start");
+        }
+
+        return orderPersistenceMapper.toDomainList(orderJpaRepository.findAllByDateBetween(start, end));
     }
 }
 

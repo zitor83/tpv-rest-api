@@ -8,6 +8,7 @@ import com.ortiz.tpv_backend.infrastructure.persistence.repository.ExpenseJpaRep
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,6 +43,17 @@ public class ExpenseRepositoryAdapter implements ExpenseRepositoryPort {
     @Override
     public List<Expense> findAll() {
         return expensePersistenceMapper.toDomainList(expenseJpaRepository.findAll());
+    }
+
+    @Override
+    public List<Expense> findByDateBetween(LocalDateTime start, LocalDateTime end) {
+        Objects.requireNonNull(start, "start is required");
+        Objects.requireNonNull(end, "end is required");
+        if (end.isBefore(start)) {
+            throw new IllegalArgumentException("end must be greater than or equal to start");
+        }
+
+        return expensePersistenceMapper.toDomainList(expenseJpaRepository.findAllByDateBetween(start, end));
     }
 
     @Override
