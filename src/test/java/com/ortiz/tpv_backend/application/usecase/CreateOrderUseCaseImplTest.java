@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -49,9 +50,13 @@ class CreateOrderUseCaseImplTest {
 
     @Test
     void givenValidRequest_whenCreate_thenBuildOrderWithDatabasePrices() {
+        String orderId = UUID.randomUUID().toString();
+        String productOneId = UUID.randomUUID().toString();
+        String productTwoId = UUID.randomUUID().toString();
+
         OrderRequestDTO request = OrderRequestDTO.builder()
             .isForTakeaway(false)
-            .tableNumber("T1")
+            .tableNumber("Mesa 5")
             .customerName("Juan")
             .customNotes("Sin prisa")
             .paymentMethod("card")
@@ -59,13 +64,13 @@ class CreateOrderUseCaseImplTest {
             .tip(new BigDecimal("2.00"))
             .lines(List.of(
                 OrderLineRequestDTO.builder()
-                    .productId("prod-1")
+                    .productId(productOneId)
                     .quantity(2)
                     .notes("Muy hecha")
                     .selectedIngredients(Map.of("included", List.of("Pan"), "additional", List.of("Bacon")))
                     .build(),
                 OrderLineRequestDTO.builder()
-                    .productId("prod-3")
+                    .productId(productTwoId)
                     .quantity(1)
                     .notes("Sin sal")
                     .selectedIngredients(Map.of("included", List.of("Patatas"), "additional", List.of()))
@@ -74,7 +79,7 @@ class CreateOrderUseCaseImplTest {
             .build();
 
         Product productOne = new Product(
-            "prod-1",
+            productOneId,
             "Hamburguesa Clasica",
             new BigDecimal("8.50"),
             "Principal",
@@ -84,7 +89,7 @@ class CreateOrderUseCaseImplTest {
             List.of("Pan", "Carne")
         );
         Product productThree = new Product(
-            "prod-3",
+            productTwoId,
             "Patatas Fritas",
             new BigDecimal("3.50"),
             "Entrante",
@@ -95,12 +100,12 @@ class CreateOrderUseCaseImplTest {
         );
 
         Order savedOrder = new Order(
-            "ord-7",
+            orderId,
             LocalDateTime.parse("2026-03-21T15:30:00"),
             List.of(
                 new OrderLine(
                     11L,
-                    "prod-1",
+                    productOneId,
                     "Hamburguesa Clasica",
                     new BigDecimal("8.50"),
                     2,
@@ -109,7 +114,7 @@ class CreateOrderUseCaseImplTest {
                 ),
                 new OrderLine(
                     12L,
-                    "prod-3",
+                    productTwoId,
                     "Patatas Fritas",
                     new BigDecimal("3.50"),
                     1,
@@ -118,7 +123,7 @@ class CreateOrderUseCaseImplTest {
                 )
             ),
             false,
-            "T1",
+            "Mesa 5",
             "Juan",
             "Sin prisa",
             "card",
@@ -127,12 +132,12 @@ class CreateOrderUseCaseImplTest {
         );
 
         OrderResponseDTO expected = OrderResponseDTO.builder()
-            .id("ord-7")
+            .id(orderId)
             .createdAt(LocalDateTime.parse("2026-03-21T15:30:00"))
             .totalAmount(new BigDecimal("20.50"))
             .grandTotal(new BigDecimal("22.50"))
             .isForTakeaway(false)
-            .tableNumber("T1")
+            .tableNumber("Mesa 5")
             .customerName("Juan")
             .customNotes("Sin prisa")
             .paymentMethod("card")
@@ -140,7 +145,7 @@ class CreateOrderUseCaseImplTest {
             .tip(new BigDecimal("2.00"))
             .lines(List.of(
                 OrderLineResponseDTO.builder()
-                    .productId("prod-1")
+                    .productId(productOneId)
                     .productName("Hamburguesa Clasica")
                     .quantity(2)
                     .unitPrice(new BigDecimal("8.50"))
@@ -149,7 +154,7 @@ class CreateOrderUseCaseImplTest {
                     .selectedIngredients(Map.of("included", List.of("Pan"), "additional", List.of("Bacon")))
                     .build(),
                 OrderLineResponseDTO.builder()
-                    .productId("prod-3")
+                    .productId(productTwoId)
                     .productName("Patatas Fritas")
                     .quantity(1)
                     .unitPrice(new BigDecimal("3.50"))
@@ -160,8 +165,8 @@ class CreateOrderUseCaseImplTest {
             ))
             .build();
 
-        when(productRepositoryPort.findById("prod-1")).thenReturn(Optional.of(productOne));
-        when(productRepositoryPort.findById("prod-3")).thenReturn(Optional.of(productThree));
+        when(productRepositoryPort.findById(productOneId)).thenReturn(Optional.of(productOne));
+        when(productRepositoryPort.findById(productTwoId)).thenReturn(Optional.of(productThree));
         when(orderRepositoryPort.save(any(Order.class))).thenReturn(savedOrder);
         when(orderMapper.toResponse(savedOrder)).thenReturn(expected);
 
@@ -171,6 +176,10 @@ class CreateOrderUseCaseImplTest {
         assertEquals(expected.getTotalAmount(), result.getTotalAmount());
         assertEquals(expected.getGrandTotal(), result.getGrandTotal());
         assertEquals(expected.getTip(), result.getTip());
+        assertEquals(expected.getIsForTakeaway(), result.getIsForTakeaway());
+        assertEquals(expected.getTableNumber(), result.getTableNumber());
+        assertEquals(expected.getStatus(), result.getStatus());
+        assertEquals(expected.getPaymentMethod(), result.getPaymentMethod());
         assertEquals(expected.getLines().size(), result.getLines().size());
 
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
@@ -181,22 +190,38 @@ class CreateOrderUseCaseImplTest {
         assertEquals(2, orderToPersist.getLines().size());
         assertEquals(new BigDecimal("20.50"), orderToPersist.getTotalAmount());
         assertEquals(new BigDecimal("22.50"), orderToPersist.getGrandTotal());
+        assertEquals("Mesa 5", orderToPersist.getTableNumber());
+        assertEquals(false, orderToPersist.isForTakeaway());
         assertEquals("active", orderToPersist.getStatus());
         assertEquals(new BigDecimal("2.00"), orderToPersist.getTip());
         assertEquals("Hamburguesa Clasica", orderToPersist.getLines().getFirst().getProductName());
-        assertEquals("prod-1", orderToPersist.getLines().getFirst().getProductId());
+        assertEquals(productOneId, orderToPersist.getLines().getFirst().getProductId());
         assertEquals("Muy hecha", orderToPersist.getLines().getFirst().getNotes());
+        assertEquals(Map.of("included", List.of("Pan"), "additional", List.of("Bacon")), orderToPersist.getLines().getFirst().getSelectedIngredients());
         assertEquals(new BigDecimal("8.50"), orderToPersist.getLines().getFirst().getUnitPrice());
     }
 
     @Test
     void givenMissingProduct_whenCreate_thenThrowNotFoundAndDoNotPersist() {
+        String missingProductId = UUID.randomUUID().toString();
+
         OrderRequestDTO request = OrderRequestDTO.builder()
             .isForTakeaway(true)
-            .lines(List.of(OrderLineRequestDTO.builder().productId("prod-999").quantity(1).build()))
+            .tableNumber(null)
+            .status("active")
+            .paymentMethod(null)
+            .tip(BigDecimal.ZERO)
+            .lines(List.of(
+                OrderLineRequestDTO.builder()
+                    .productId(missingProductId)
+                    .quantity(1)
+                    .notes("sin cebolla")
+                    .selectedIngredients(Map.of())
+                    .build()
+            ))
             .build();
 
-        when(productRepositoryPort.findById("prod-999")).thenReturn(Optional.empty());
+        when(productRepositoryPort.findById(missingProductId)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> createOrderUseCase.create(request));
 

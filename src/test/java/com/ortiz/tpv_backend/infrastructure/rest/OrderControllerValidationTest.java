@@ -72,9 +72,21 @@ class OrderControllerValidationTest {
     void givenUnexpectedError_whenCreateOrder_thenReturnInternalServerErrorApiResponse() throws Exception {
         String validRequest = """
             {
-              "isForTakeaway": true,
+              "isForTakeaway": false,
+              "tableNumber": "Mesa 5",
+              "status": "active",
+              "paymentMethod": "cash",
+              "tip": 0,
               "lines": [
-                { "productId": "prod-1", "quantity": 1 }
+                {
+                  "productId": "prod-1",
+                  "quantity": 1,
+                  "notes": "sin sal",
+                  "selectedIngredients": {
+                    "included": ["Patatas"],
+                    "additional": []
+                  }
+                }
               ]
             }
             """;

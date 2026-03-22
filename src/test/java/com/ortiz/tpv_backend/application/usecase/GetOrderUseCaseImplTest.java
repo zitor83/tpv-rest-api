@@ -15,7 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,33 +37,46 @@ class GetOrderUseCaseImplTest {
 
     @Test
     void givenExistingOrderId_whenGetById_thenReturnMappedOrderResponse() {
+        String orderId = UUID.randomUUID().toString();
+        String productId = UUID.randomUUID().toString();
+
         Order order = new Order(
-            "ord-10",
+            orderId,
             LocalDateTime.parse("2026-03-22T12:00:00"),
-            List.of(new OrderLine(1L, "prod-1", "Cafe", new BigDecimal("1.50"), 2, null, null)),
+            List.of(new OrderLine(1L, productId, "Cafe", new BigDecimal("1.50"), 2, "Sin azucar", Map.of())),
             false,
-            "T2",
-            null,
-            null,
-            null,
+            "Mesa 5",
+            "Ana",
+            "Urgente",
+            "cash",
             "active",
             BigDecimal.ZERO
         );
 
         OrderResponseDTO responseDTO = OrderResponseDTO.builder()
-            .id("ord-10")
+            .id(orderId)
             .totalAmount(new BigDecimal("3.00"))
             .grandTotal(new BigDecimal("3.00"))
+            .isForTakeaway(false)
+            .tableNumber("Mesa 5")
+            .customerName("Ana")
+            .customNotes("Urgente")
+            .paymentMethod("cash")
             .status("active")
+            .tip(BigDecimal.ZERO)
             .build();
 
-        when(orderRepositoryPort.findById("ord-10")).thenReturn(Optional.of(order));
+        when(orderRepositoryPort.findById(orderId)).thenReturn(Optional.of(order));
         when(orderMapper.toResponse(order)).thenReturn(responseDTO);
 
-        OrderResponseDTO result = getOrderUseCase.getById("ord-10");
+        OrderResponseDTO result = getOrderUseCase.getById(orderId);
 
-        assertEquals("ord-10", result.getId());
+        assertEquals(orderId, result.getId());
         assertEquals(new BigDecimal("3.00"), result.getGrandTotal());
+        assertEquals(false, result.getIsForTakeaway());
+        assertEquals("Mesa 5", result.getTableNumber());
+        assertEquals("cash", result.getPaymentMethod());
+        assertEquals(BigDecimal.ZERO, result.getTip());
     }
 
     @Test
