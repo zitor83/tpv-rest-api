@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.Map;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,5 +25,9 @@ public class OrderLineRequestDTO {
     @NotNull
     @Positive
     private Integer quantity;
+
+    private String notes;
+
+    private Map<String, List<String>> selectedIngredients;
 }
 

@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,9 +50,26 @@ class CreateOrderUseCaseImplTest {
     @Test
     void givenValidRequest_whenCreate_thenBuildOrderWithDatabasePrices() {
         OrderRequestDTO request = OrderRequestDTO.builder()
+            .isForTakeaway(false)
+            .tableNumber("T1")
+            .customerName("Juan")
+            .customNotes("Sin prisa")
+            .paymentMethod("card")
+            .status("active")
+            .tip(new BigDecimal("2.00"))
             .lines(List.of(
-                OrderLineRequestDTO.builder().productId("prod-1").quantity(2).build(),
-                OrderLineRequestDTO.builder().productId("prod-3").quantity(1).build()
+                OrderLineRequestDTO.builder()
+                    .productId("prod-1")
+                    .quantity(2)
+                    .notes("Muy hecha")
+                    .selectedIngredients(Map.of("included", List.of("Pan"), "additional", List.of("Bacon")))
+                    .build(),
+                OrderLineRequestDTO.builder()
+                    .productId("prod-3")
+                    .quantity(1)
+                    .notes("Sin sal")
+                    .selectedIngredients(Map.of("included", List.of("Patatas"), "additional", List.of()))
+                    .build()
             ))
             .build();
 
@@ -77,18 +95,49 @@ class CreateOrderUseCaseImplTest {
         );
 
         Order savedOrder = new Order(
-            7L,
+            "ord-7",
             LocalDateTime.parse("2026-03-21T15:30:00"),
             List.of(
-                new OrderLine(11L, "prod-1", "Hamburguesa Clasica", new BigDecimal("8.50"), 2),
-                new OrderLine(12L, "prod-3", "Patatas Fritas", new BigDecimal("3.50"), 1)
-            )
+                new OrderLine(
+                    11L,
+                    "prod-1",
+                    "Hamburguesa Clasica",
+                    new BigDecimal("8.50"),
+                    2,
+                    "Muy hecha",
+                    Map.of("included", List.of("Pan"), "additional", List.of("Bacon"))
+                ),
+                new OrderLine(
+                    12L,
+                    "prod-3",
+                    "Patatas Fritas",
+                    new BigDecimal("3.50"),
+                    1,
+                    "Sin sal",
+                    Map.of("included", List.of("Patatas"), "additional", List.of())
+                )
+            ),
+            false,
+            "T1",
+            "Juan",
+            "Sin prisa",
+            "card",
+            "active",
+            new BigDecimal("2.00")
         );
 
         OrderResponseDTO expected = OrderResponseDTO.builder()
-            .id(7L)
+            .id("ord-7")
             .createdAt(LocalDateTime.parse("2026-03-21T15:30:00"))
             .totalAmount(new BigDecimal("20.50"))
+            .grandTotal(new BigDecimal("22.50"))
+            .isForTakeaway(false)
+            .tableNumber("T1")
+            .customerName("Juan")
+            .customNotes("Sin prisa")
+            .paymentMethod("card")
+            .status("active")
+            .tip(new BigDecimal("2.00"))
             .lines(List.of(
                 OrderLineResponseDTO.builder()
                     .productId("prod-1")
@@ -96,6 +145,8 @@ class CreateOrderUseCaseImplTest {
                     .quantity(2)
                     .unitPrice(new BigDecimal("8.50"))
                     .subTotal(new BigDecimal("17.00"))
+                    .notes("Muy hecha")
+                    .selectedIngredients(Map.of("included", List.of("Pan"), "additional", List.of("Bacon")))
                     .build(),
                 OrderLineResponseDTO.builder()
                     .productId("prod-3")
@@ -103,6 +154,8 @@ class CreateOrderUseCaseImplTest {
                     .quantity(1)
                     .unitPrice(new BigDecimal("3.50"))
                     .subTotal(new BigDecimal("3.50"))
+                    .notes("Sin sal")
+                    .selectedIngredients(Map.of("included", List.of("Patatas"), "additional", List.of()))
                     .build()
             ))
             .build();
@@ -116,6 +169,8 @@ class CreateOrderUseCaseImplTest {
 
         assertEquals(expected.getId(), result.getId());
         assertEquals(expected.getTotalAmount(), result.getTotalAmount());
+        assertEquals(expected.getGrandTotal(), result.getGrandTotal());
+        assertEquals(expected.getTip(), result.getTip());
         assertEquals(expected.getLines().size(), result.getLines().size());
 
         ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
@@ -125,14 +180,19 @@ class CreateOrderUseCaseImplTest {
         assertNotNull(orderToPersist.getCreatedAt());
         assertEquals(2, orderToPersist.getLines().size());
         assertEquals(new BigDecimal("20.50"), orderToPersist.getTotalAmount());
+        assertEquals(new BigDecimal("22.50"), orderToPersist.getGrandTotal());
+        assertEquals("active", orderToPersist.getStatus());
+        assertEquals(new BigDecimal("2.00"), orderToPersist.getTip());
         assertEquals("Hamburguesa Clasica", orderToPersist.getLines().getFirst().getProductName());
         assertEquals("prod-1", orderToPersist.getLines().getFirst().getProductId());
+        assertEquals("Muy hecha", orderToPersist.getLines().getFirst().getNotes());
         assertEquals(new BigDecimal("8.50"), orderToPersist.getLines().getFirst().getUnitPrice());
     }
 
     @Test
     void givenMissingProduct_whenCreate_thenThrowNotFoundAndDoNotPersist() {
         OrderRequestDTO request = OrderRequestDTO.builder()
+            .isForTakeaway(true)
             .lines(List.of(OrderLineRequestDTO.builder().productId("prod-999").quantity(1).build()))
             .build();
 

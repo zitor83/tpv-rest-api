@@ -35,7 +35,18 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
             .map(this::buildOrderLine)
             .toList();
 
-        Order orderToCreate = Order.create(lines);
+        Boolean isForTakeaway = Objects.requireNonNull(safeRequest.getIsForTakeaway(), "isForTakeaway is required");
+
+        Order orderToCreate = Order.create(
+            lines,
+            isForTakeaway,
+            safeRequest.getTableNumber(),
+            safeRequest.getCustomerName(),
+            safeRequest.getCustomNotes(),
+            safeRequest.getPaymentMethod(),
+            safeRequest.getStatus(),
+            safeRequest.getTip()
+        );
         Order createdOrder = orderRepositoryPort.save(orderToCreate);
 
         return orderMapper.toResponse(createdOrder);
@@ -54,7 +65,9 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
             product.getId(),
             product.getName(),
             product.getPrice(),
-            quantity
+            quantity,
+            safeLine.getNotes(),
+            safeLine.getSelectedIngredients()
         );
     }
 }

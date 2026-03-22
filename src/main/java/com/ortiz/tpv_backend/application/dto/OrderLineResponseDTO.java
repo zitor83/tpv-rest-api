@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -20,5 +22,7 @@ public class OrderLineResponseDTO {
     private Integer quantity;
     private BigDecimal unitPrice;
     private BigDecimal subTotal;
+    private String notes;
+    private Map<String, List<String>> selectedIngredients;
 }
 

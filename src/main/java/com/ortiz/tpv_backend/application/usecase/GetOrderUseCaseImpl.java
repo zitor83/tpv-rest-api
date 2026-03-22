@@ -18,13 +18,15 @@ public class GetOrderUseCaseImpl implements GetOrderUseCase {
     private final OrderMapper orderMapper;
 
     @Override
-    public OrderResponseDTO getById(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("id must be greater than 0");
+    public OrderResponseDTO getById(String id) {
+        if (id == null || id.trim().isEmpty()) {
+            throw new IllegalArgumentException("id is required");
         }
 
-        Order order = orderRepositoryPort.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Ticket no encontrado con id: " + id));
+        String safeId = id.trim();
+
+        Order order = orderRepositoryPort.findById(safeId)
+            .orElseThrow(() -> new ResourceNotFoundException("Ticket no encontrado con id: " + safeId));
 
         return orderMapper.toResponse(order);
     }

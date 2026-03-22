@@ -72,6 +72,7 @@ class OrderControllerValidationTest {
     void givenUnexpectedError_whenCreateOrder_thenReturnInternalServerErrorApiResponse() throws Exception {
         String validRequest = """
             {
+              "isForTakeaway": true,
               "lines": [
                 { "productId": "prod-1", "quantity": 1 }
               ]
