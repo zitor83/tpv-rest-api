@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,9 +16,13 @@ import java.math.BigDecimal;
 @Builder
 public class ProductResponseDTO {
 
-    private Long id;
+    private String id;
     private String name;
     private BigDecimal price;
     private String category;
+    private String description;
+    private String imageUrl;
+    private Boolean available;
+    private List<String> defaultIngredients;
 }
 

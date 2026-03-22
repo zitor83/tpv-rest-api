@@ -43,7 +43,7 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
 
     private OrderLine buildOrderLine(OrderLineRequestDTO lineRequestDTO) {
         OrderLineRequestDTO safeLine = Objects.requireNonNull(lineRequestDTO, "order line is required");
-        Long productId = Objects.requireNonNull(safeLine.getProductId(), "productId is required");
+        String productId = Objects.requireNonNull(safeLine.getProductId(), "productId is required");
         Integer quantity = Objects.requireNonNull(safeLine.getQuantity(), "quantity is required");
 
         Product product = productRepositoryPort.findById(productId)

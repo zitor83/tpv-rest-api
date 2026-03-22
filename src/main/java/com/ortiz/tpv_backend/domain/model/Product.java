@@ -1,23 +1,41 @@
 package com.ortiz.tpv_backend.domain.model;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 
 public final class Product {
 
-    private final Long id;
+    private final String id;
     private final String name;
     private final BigDecimal price;
     private final String category;
+    private final String description;
+    private final String imageUrl;
+    private final boolean available;
+    private final List<String> defaultIngredients;
 
-    public Product(Long id, String name, BigDecimal price, String category) {
+    public Product(
+        String id,
+        String name,
+        BigDecimal price,
+        String category,
+        String description,
+        String imageUrl,
+        Boolean available,
+        List<String> defaultIngredients
+    ) {
         this.id = validateId(id);
         this.name = validateText(name, "name");
         this.price = validatePrice(price);
         this.category = validateText(category, "category");
+        this.description = validateText(description, "description");
+        this.imageUrl = validateText(imageUrl, "imageUrl");
+        this.available = available == null || available;
+        this.defaultIngredients = sanitizeIngredients(defaultIngredients);
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
@@ -31,6 +49,22 @@ public final class Product {
 
     public String getCategory() {
         return category;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public List<String> getDefaultIngredients() {
+        return defaultIngredients;
     }
 
     @Override
@@ -52,11 +86,15 @@ public final class Product {
         return Objects.hash(id);
     }
 
-    private static Long validateId(Long id) {
-        if (id != null && id <= 0) {
-            throw new IllegalArgumentException("id must be greater than 0");
+    private static String validateId(String id) {
+        if (id == null) {
+            return null;
         }
-        return id;
+        String normalized = id.trim();
+        if (normalized.isEmpty()) {
+            throw new IllegalArgumentException("id cannot be blank");
+        }
+        return normalized;
     }
 
     private static String validateText(String value, String fieldName) {
@@ -79,6 +117,16 @@ public final class Product {
             throw new IllegalArgumentException("price must be greater than 0");
         }
         return price;
+    }
+
+    private static List<String> sanitizeIngredients(List<String> ingredients) {
+        if (ingredients == null) {
+            return List.of();
+        }
+
+        return ingredients.stream()
+            .map(ingredient -> validateText(ingredient, "defaultIngredient"))
+            .toList();
     }
 }
 

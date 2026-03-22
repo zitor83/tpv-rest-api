@@ -1,6 +1,7 @@
 package com.ortiz.tpv_backend.application.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,9 +16,8 @@ import lombok.Setter;
 @Builder
 public class OrderLineRequestDTO {
 
-    @NotNull
-    @Positive
-    private Long productId;
+    @NotBlank
+    private String productId;
 
     @NotNull
     @Positive

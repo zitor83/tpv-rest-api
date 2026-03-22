@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,6 +19,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class ProductRequestDTO {
+
+    private String id;
 
     @NotBlank
     private String name;
@@ -27,5 +31,17 @@ public class ProductRequestDTO {
 
     @NotBlank
     private String category;
+
+    @NotBlank
+    private String description;
+
+    @NotBlank
+    private String imageUrl;
+
+    private Boolean available;
+
+    @NotNull
+    @Builder.Default
+    private List<@NotBlank String> defaultIngredients = new ArrayList<>();
 }
 

@@ -6,13 +6,13 @@ import java.util.Objects;
 public final class OrderLine {
 
     private final Long id;
-    private final Long productId;
+    private final String productId;
     private final String productName;
     private final BigDecimal unitPrice;
     private final int quantity;
     private final BigDecimal subTotal;
 
-    public OrderLine(Long id, Long productId, String productName, BigDecimal unitPrice, int quantity) {
+    public OrderLine(Long id, String productId, String productName, BigDecimal unitPrice, int quantity) {
         this.id = validateId(id);
         this.productId = validateProductId(productId);
         this.productName = validateText(productName, "productName");
@@ -25,7 +25,7 @@ public final class OrderLine {
         return id;
     }
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
@@ -52,11 +52,16 @@ public final class OrderLine {
         return id;
     }
 
-    private static Long validateProductId(Long productId) {
-        if (productId == null || productId <= 0) {
-            throw new IllegalArgumentException("productId must be greater than 0");
+    private static String validateProductId(String productId) {
+        if (productId == null) {
+            throw new IllegalArgumentException("productId is required");
         }
-        return productId;
+
+        String normalized = productId.trim();
+        if (normalized.isEmpty()) {
+            throw new IllegalArgumentException("productId cannot be blank");
+        }
+        return normalized;
     }
 
     private static String validateText(String value, String fieldName) {

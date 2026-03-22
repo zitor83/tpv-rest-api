@@ -9,7 +9,7 @@ public interface ProductRepositoryPort {
 
     Product save(Product product);
 
-    Optional<Product> findById(Long id);
+    Optional<Product> findById(String id);
 
     List<Product> findAll();
 }
