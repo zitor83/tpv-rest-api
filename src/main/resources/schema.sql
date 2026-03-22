@@ -1,8 +1,12 @@
 CREATE TABLE IF NOT EXISTS products (
-    id BIGSERIAL PRIMARY KEY,
+    id VARCHAR(36) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     price NUMERIC(19, 2) NOT NULL,
-    category VARCHAR(255) NOT NULL
+    category VARCHAR(255) NOT NULL,
+    description VARCHAR(500) NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
+    available BOOLEAN NOT NULL,
+    default_ingredients JSON NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS orders (

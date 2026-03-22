@@ -11,8 +11,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -24,8 +28,8 @@ import java.math.BigDecimal;
 public class ProductEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
 
     @Column(nullable = false)
     private String name;
@@ -35,5 +39,20 @@ public class ProductEntity {
 
     @Column(nullable = false)
     private String category;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(name = "image_url", nullable = false)
+    private String imageUrl;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean available = true;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "default_ingredients", nullable = false)
+    @Builder.Default
+    private List<String> defaultIngredients = new ArrayList<>();
 }
 

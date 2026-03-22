@@ -30,7 +30,7 @@ public class ProductRepositoryAdapter implements ProductRepositoryPort {
     }
 
     @Override
-    public Optional<Product> findById(Long id) {
+    public Optional<Product> findById(String id) {
         return productJpaRepository.findById(id)
             .map(productPersistenceMapper::toDomain);
     }
