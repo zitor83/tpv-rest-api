@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,18 +36,45 @@ class CreateProductUseCaseImplTest {
     @Test
     void givenValidRequest_whenCreate_thenMapsSavesAndReturnsMappedResponse() {
         ProductRequestDTO request = ProductRequestDTO.builder()
+            .id("prod-123")
             .name("Cafe")
             .price(new BigDecimal("1.50"))
             .category("Bebidas")
+            .description("Descripcion mock")
+            .imageUrl("http://img.com/mock.png")
+            .available(true)
+            .defaultIngredients(List.of("Cafe", "Agua"))
             .build();
 
-        Product mappedProduct = new Product(null, "Cafe", new BigDecimal("1.50"), "Bebidas");
-        Product savedProduct = new Product(10L, "Cafe", new BigDecimal("1.50"), "Bebidas");
+        Product mappedProduct = new Product(
+            "prod-123",
+            "Cafe",
+            new BigDecimal("1.50"),
+            "Bebidas",
+            "Descripcion mock",
+            "http://img.com/mock.png",
+            true,
+            List.of("Cafe", "Agua")
+        );
+        Product savedProduct = new Product(
+            "prod-123",
+            "Cafe",
+            new BigDecimal("1.50"),
+            "Bebidas",
+            "Descripcion mock",
+            "http://img.com/mock.png",
+            true,
+            List.of("Cafe", "Agua")
+        );
         ProductResponseDTO expectedResponse = ProductResponseDTO.builder()
-            .id(10L)
+            .id("prod-123")
             .name("Cafe")
             .price(new BigDecimal("1.50"))
             .category("Bebidas")
+            .description("Descripcion mock")
+            .imageUrl("http://img.com/mock.png")
+            .available(true)
+            .defaultIngredients(List.of("Cafe", "Agua"))
             .build();
 
         when(productMapper.toDomain(request)).thenReturn(mappedProduct);
@@ -59,6 +87,10 @@ class CreateProductUseCaseImplTest {
         assertEquals(expectedResponse.getName(), result.getName());
         assertEquals(expectedResponse.getPrice(), result.getPrice());
         assertEquals(expectedResponse.getCategory(), result.getCategory());
+        assertEquals(expectedResponse.getDescription(), result.getDescription());
+        assertEquals(expectedResponse.getImageUrl(), result.getImageUrl());
+        assertEquals(expectedResponse.getAvailable(), result.getAvailable());
+        assertEquals(expectedResponse.getDefaultIngredients(), result.getDefaultIngredients());
 
         InOrder inOrder = inOrder(productMapper, productRepositoryPort, productMapper);
         inOrder.verify(productMapper).toDomain(request);

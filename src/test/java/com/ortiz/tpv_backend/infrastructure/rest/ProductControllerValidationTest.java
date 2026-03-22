@@ -37,8 +37,13 @@ class ProductControllerValidationTest {
     void givenInvalidRequest_whenCreateProduct_thenReturnApiResponseValidationError() throws Exception {
         String invalidRequest = """
             {
+              "id": "prod-123",
               "price": 10.5,
-              "category": "Bebidas"
+              "category": "Bebidas",
+              "description": "Descripcion mock",
+              "imageUrl": "http://img.com/mock.png",
+              "available": true,
+              "defaultIngredients": ["Pan", "Carne"]
             }
             """;
 

@@ -50,20 +50,38 @@ class CreateOrderUseCaseImplTest {
     void givenValidRequest_whenCreate_thenBuildOrderWithDatabasePrices() {
         OrderRequestDTO request = OrderRequestDTO.builder()
             .lines(List.of(
-                OrderLineRequestDTO.builder().productId(1L).quantity(2).build(),
-                OrderLineRequestDTO.builder().productId(3L).quantity(1).build()
+                OrderLineRequestDTO.builder().productId("prod-1").quantity(2).build(),
+                OrderLineRequestDTO.builder().productId("prod-3").quantity(1).build()
             ))
             .build();
 
-        Product productOne = new Product(1L, "Hamburguesa Clasica", new BigDecimal("8.50"), "Principal");
-        Product productThree = new Product(3L, "Patatas Fritas", new BigDecimal("3.50"), "Entrante");
+        Product productOne = new Product(
+            "prod-1",
+            "Hamburguesa Clasica",
+            new BigDecimal("8.50"),
+            "Principal",
+            "Descripcion mock",
+            "http://img.com/mock.png",
+            true,
+            List.of("Pan", "Carne")
+        );
+        Product productThree = new Product(
+            "prod-3",
+            "Patatas Fritas",
+            new BigDecimal("3.50"),
+            "Entrante",
+            "Descripcion mock",
+            "http://img.com/mock.png",
+            true,
+            List.of("Patatas")
+        );
 
         Order savedOrder = new Order(
             7L,
             LocalDateTime.parse("2026-03-21T15:30:00"),
             List.of(
-                new OrderLine(11L, 1L, "Hamburguesa Clasica", new BigDecimal("8.50"), 2),
-                new OrderLine(12L, 3L, "Patatas Fritas", new BigDecimal("3.50"), 1)
+                new OrderLine(11L, "prod-1", "Hamburguesa Clasica", new BigDecimal("8.50"), 2),
+                new OrderLine(12L, "prod-3", "Patatas Fritas", new BigDecimal("3.50"), 1)
             )
         );
 
@@ -73,14 +91,14 @@ class CreateOrderUseCaseImplTest {
             .totalAmount(new BigDecimal("20.50"))
             .lines(List.of(
                 OrderLineResponseDTO.builder()
-                    .productId(1L)
+                    .productId("prod-1")
                     .productName("Hamburguesa Clasica")
                     .quantity(2)
                     .unitPrice(new BigDecimal("8.50"))
                     .subTotal(new BigDecimal("17.00"))
                     .build(),
                 OrderLineResponseDTO.builder()
-                    .productId(3L)
+                    .productId("prod-3")
                     .productName("Patatas Fritas")
                     .quantity(1)
                     .unitPrice(new BigDecimal("3.50"))
@@ -89,8 +107,8 @@ class CreateOrderUseCaseImplTest {
             ))
             .build();
 
-        when(productRepositoryPort.findById(1L)).thenReturn(Optional.of(productOne));
-        when(productRepositoryPort.findById(3L)).thenReturn(Optional.of(productThree));
+        when(productRepositoryPort.findById("prod-1")).thenReturn(Optional.of(productOne));
+        when(productRepositoryPort.findById("prod-3")).thenReturn(Optional.of(productThree));
         when(orderRepositoryPort.save(any(Order.class))).thenReturn(savedOrder);
         when(orderMapper.toResponse(savedOrder)).thenReturn(expected);
 
@@ -108,16 +126,17 @@ class CreateOrderUseCaseImplTest {
         assertEquals(2, orderToPersist.getLines().size());
         assertEquals(new BigDecimal("20.50"), orderToPersist.getTotalAmount());
         assertEquals("Hamburguesa Clasica", orderToPersist.getLines().getFirst().getProductName());
+        assertEquals("prod-1", orderToPersist.getLines().getFirst().getProductId());
         assertEquals(new BigDecimal("8.50"), orderToPersist.getLines().getFirst().getUnitPrice());
     }
 
     @Test
     void givenMissingProduct_whenCreate_thenThrowNotFoundAndDoNotPersist() {
         OrderRequestDTO request = OrderRequestDTO.builder()
-            .lines(List.of(OrderLineRequestDTO.builder().productId(999L).quantity(1).build()))
+            .lines(List.of(OrderLineRequestDTO.builder().productId("prod-999").quantity(1).build()))
             .build();
 
-        when(productRepositoryPort.findById(999L)).thenReturn(Optional.empty());
+        when(productRepositoryPort.findById("prod-999")).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> createOrderUseCase.create(request));
 

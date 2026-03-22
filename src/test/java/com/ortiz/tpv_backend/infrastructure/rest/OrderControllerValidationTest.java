@@ -73,7 +73,7 @@ class OrderControllerValidationTest {
         String validRequest = """
             {
               "lines": [
-                { "productId": 1, "quantity": 1 }
+                { "productId": "prod-1", "quantity": 1 }
               ]
             }
             """;
