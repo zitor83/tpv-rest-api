@@ -2,23 +2,20 @@ package com.ortiz.tpv_backend.infrastructure.persistence;
 
 import com.ortiz.tpv_backend.domain.model.Product;
 import com.ortiz.tpv_backend.infrastructure.persistence.mapper.ProductPersistenceMapperImpl;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
-import jakarta.persistence.EntityManager;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ContextConfiguration(classes = ProductRepositoryAdapterDataJpaTest.TestApplication.class)

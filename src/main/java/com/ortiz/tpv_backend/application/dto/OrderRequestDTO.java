@@ -1,15 +1,13 @@
 package com.ortiz.tpv_backend.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -41,6 +39,8 @@ public class OrderRequestDTO {
 
     @NotEmpty
     @Valid
+    @JsonProperty("items")
+    @JsonAlias("lines")
     private List<OrderLineRequestDTO> lines;
 }
 

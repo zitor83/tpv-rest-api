@@ -3,8 +3,8 @@ package com.ortiz.tpv_backend.domain.model;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Objects;
+import java.util.Set;
 
 public final class OrderLine {
 

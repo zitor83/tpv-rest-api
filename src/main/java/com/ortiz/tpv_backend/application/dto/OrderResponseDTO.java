@@ -1,11 +1,8 @@
 package com.ortiz.tpv_backend.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,6 +18,7 @@ public class OrderResponseDTO {
     private String id;
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+    @JsonProperty("total")
     private BigDecimal totalAmount;
     private BigDecimal grandTotal;
     private String tableNumber;
@@ -30,6 +28,7 @@ public class OrderResponseDTO {
     private String paymentMethod;
     private String status;
     private BigDecimal tip;
+    @JsonProperty("items")
     private List<OrderLineResponseDTO> lines;
 }
 
