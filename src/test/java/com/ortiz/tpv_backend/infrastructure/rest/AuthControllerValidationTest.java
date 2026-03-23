@@ -77,7 +77,7 @@ class AuthControllerValidationTest {
                 .content(validRequest))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.success").value(true))
-            .andExpect(jsonPath("$.message").value("Autenticacion correcta"))
+            .andExpect(jsonPath("$.message").value("Autenticación correcta"))
             .andExpect(jsonPath("$.data.token").value("jwt-token"))
             .andExpect(jsonPath("$.data.username").value("admin"))
             .andExpect(jsonPath("$.data.role").value("ROLE_ADMIN"))

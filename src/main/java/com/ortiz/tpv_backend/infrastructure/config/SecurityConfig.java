@@ -1,5 +1,6 @@
 package com.ortiz.tpv_backend.infrastructure.config;
 
+import com.ortiz.tpv_backend.infrastructure.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -7,11 +8,13 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -19,22 +22,28 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.cors(Customizer.withDefaults());
-        
-        // Permitir acceso a documentación de API y desarrollo
+
+        // 1. Configuramos la sesión como Stateless (esencial para JWT)
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // 2. Protegemos las rutas
         http.authorizeHttpRequests(auth -> auth
-            // OpenAPI 3.0 y Swagger UI
-            .requestMatchers("/v3/**").permitAll()
-            .requestMatchers("/swagger-ui/**").permitAll()
-            .requestMatchers("/swagger-ui.html").permitAll()
-            // H2 Console
-            .requestMatchers("/h2-console/**").permitAll()
-            // Resto: permitir todo (desarrollo)
-            .anyRequest().permitAll());
-        
+                // OpenAPI 3.0 y Swagger UI
+                .requestMatchers("/v3/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                // H2 Console
+                .requestMatchers("/h2-console/**").permitAll()
+                // Endpoints de autenticación (Login)
+                .requestMatchers("/api/auth/login").permitAll()
+                // El resto de la API requiere estar logueado
+                .anyRequest().authenticated());
+
         http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
+
+        // 3. Añadimos el filtro que lee el Token en cada petición
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -50,4 +59,3 @@ public class SecurityConfig {
         return new InMemoryUserDetailsManager();
     }
 }
-
