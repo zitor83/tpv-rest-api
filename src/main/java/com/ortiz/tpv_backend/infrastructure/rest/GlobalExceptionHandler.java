@@ -1,6 +1,7 @@
 package com.ortiz.tpv_backend.infrastructure.rest;
 
 import com.ortiz.tpv_backend.application.exception.ResourceNotFoundException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -42,6 +43,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException exception) {
         ApiResponse<Void> response = ApiResponse.error(exception.getMessage(), null);
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(DataIntegrityViolationException exception) {
+        ApiResponse<Void> response = ApiResponse.error(
+            "No se puede realizar la accion porque el registro esta en uso o duplicado",
+            null
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(Exception.class)
