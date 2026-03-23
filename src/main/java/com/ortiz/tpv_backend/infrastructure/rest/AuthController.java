@@ -8,8 +8,8 @@ import com.ortiz.tpv_backend.application.usecase.LoginUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,44 +24,73 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Auth", description = "Endpoints de autenticacion")
+@Tag(name = "Authentication", description = "Endpoints para autenticación y gestión de sesiones. Emite tokens JWT para acceder a endpoints protegidos.")
 public class AuthController {
 
     private final LoginUseCase loginUseCase;
     private final GetMeUseCase getMeUseCase;
 
     @PostMapping("/login")
-    @Operation(summary = "Iniciar sesion", description = "Autentica usuario y devuelve JWT")
+    @Operation(
+        summary = "Iniciar sesión",
+        description = "Autentica al usuario con credentials (username/email y contraseña). Devuelve un token JWT que debe incluirse en el header Authorization de futuras peticiones.",
+        tags = {"Authentication"}
+    )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Autenticacion correcta",
-            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-        @ApiResponse(responseCode = "400", description = "Credenciales invalidas o payload invalido", content = @Content)
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Autenticación correcta. JWT emitido.",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ApiResponse.class)
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Validación fallida: username/password faltantes o credenciales inválidas",
+            content = @Content(mediaType = "application/json")
+        )
     })
-    public ResponseEntity<com.ortiz.tpv_backend.infrastructure.rest.ApiResponse<AuthResponseDTO>> login(
+    public ResponseEntity<ApiResponse<AuthResponseDTO>> login(
         @Valid @RequestBody LoginRequestDTO requestDTO
     ) {
         AuthResponseDTO authResponseDTO = loginUseCase.execute(requestDTO);
-        com.ortiz.tpv_backend.infrastructure.rest.ApiResponse<AuthResponseDTO> response =
-            com.ortiz.tpv_backend.infrastructure.rest.ApiResponse.success("Autenticacion correcta", authResponseDTO);
-
+        ApiResponse<AuthResponseDTO> response = ApiResponse.success("Autenticación correcta", authResponseDTO);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/me")
-    @Operation(summary = "Sesion actual", description = "Devuelve los datos del usuario autenticado")
+    @Operation(
+        summary = "Validar sesión actual",
+        description = "Devuelve los datos del usuario autenticado en base al token JWT del header Authorization. Útil para recuperar sesión al recargar la app (offline-first).",
+        tags = {"Authentication"}
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Usuario recuperado correctamente",
-            content = @Content(schema = @Schema(implementation = ApiResponse.class))),
-        @ApiResponse(responseCode = "401", description = "Token ausente o invalido", content = @Content),
-        @ApiResponse(responseCode = "403", description = "Acceso denegado", content = @Content)
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Usuario recuperado correctamente del token JWT",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ApiResponse.class)
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "Token ausente, inválido o expirado",
+            content = @Content(mediaType = "application/json")
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "403",
+            description = "Token válido pero usuario sin permisos",
+            content = @Content(mediaType = "application/json")
+        )
     })
-    public ResponseEntity<com.ortiz.tpv_backend.infrastructure.rest.ApiResponse<UserResponseDTO>> getMe(
+    public ResponseEntity<ApiResponse<UserResponseDTO>> getMe(
         Authentication authentication
     ) {
         UserResponseDTO userDTO = getMeUseCase.execute(authentication.getName());
-        com.ortiz.tpv_backend.infrastructure.rest.ApiResponse<UserResponseDTO> response =
-            com.ortiz.tpv_backend.infrastructure.rest.ApiResponse.success("Usuario recuperado correctamente", userDTO);
-
+        ApiResponse<UserResponseDTO> response = ApiResponse.success("Usuario recuperado correctamente", userDTO);
         return ResponseEntity.ok(response);
     }
 }
