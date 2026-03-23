@@ -4,6 +4,7 @@ import com.ortiz.tpv_backend.application.dto.OrderLineRequestDTO;
 import com.ortiz.tpv_backend.application.dto.OrderLineResponseDTO;
 import com.ortiz.tpv_backend.application.dto.OrderRequestDTO;
 import com.ortiz.tpv_backend.application.dto.OrderResponseDTO;
+import com.ortiz.tpv_backend.application.dto.SelectedIngredientsDTO;
 import com.ortiz.tpv_backend.application.exception.ResourceNotFoundException;
 import com.ortiz.tpv_backend.application.mapper.OrderMapper;
 import com.ortiz.tpv_backend.domain.model.Order;
@@ -63,13 +64,19 @@ class CreateOrderUseCaseImplTest {
                     .productId(productOneId)
                     .quantity(2)
                     .notes("Muy hecha")
-                    .selectedIngredients(Map.of("included", List.of("Pan"), "additional", List.of("Bacon")))
+                    .selectedIngredients(SelectedIngredientsDTO.builder()
+                        .included(List.of("Pan"))
+                        .additional(List.of("Bacon"))
+                        .build())
                     .build(),
                 OrderLineRequestDTO.builder()
                     .productId(productTwoId)
                     .quantity(1)
                     .notes("Sin sal")
-                    .selectedIngredients(Map.of("included", List.of("Patatas"), "additional", List.of()))
+                    .selectedIngredients(SelectedIngredientsDTO.builder()
+                        .included(List.of("Patatas"))
+                        .additional(List.of())
+                        .build())
                     .build()
             ))
             .build();
@@ -147,7 +154,10 @@ class CreateOrderUseCaseImplTest {
                     .unitPrice(new BigDecimal("8.50"))
                     .subTotal(new BigDecimal("17.00"))
                     .notes("Muy hecha")
-                    .selectedIngredients(Map.of("included", List.of("Pan"), "additional", List.of("Bacon")))
+                    .selectedIngredients(SelectedIngredientsDTO.builder()
+                        .included(List.of("Pan"))
+                        .additional(List.of("Bacon"))
+                        .build())
                     .build(),
                 OrderLineResponseDTO.builder()
                     .productId(productTwoId)
@@ -156,7 +166,10 @@ class CreateOrderUseCaseImplTest {
                     .unitPrice(new BigDecimal("3.50"))
                     .subTotal(new BigDecimal("3.50"))
                     .notes("Sin sal")
-                    .selectedIngredients(Map.of("included", List.of("Patatas"), "additional", List.of()))
+                    .selectedIngredients(SelectedIngredientsDTO.builder()
+                        .included(List.of("Patatas"))
+                        .additional(List.of())
+                        .build())
                     .build()
             ))
             .build();
@@ -212,7 +225,7 @@ class CreateOrderUseCaseImplTest {
                     .productId(missingProductId)
                     .quantity(1)
                     .notes("sin cebolla")
-                    .selectedIngredients(Map.of())
+                    .selectedIngredients(SelectedIngredientsDTO.builder().build())
                     .build()
             ))
             .build();
