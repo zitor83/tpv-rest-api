@@ -52,7 +52,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/orders").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/expenses").permitAll()
                 // OpenAPI 3.0 y Swagger UI
-                .requestMatchers("/v3/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers(
+                    "/v3/api-docs",
+                    "/v3/api-docs/**",
+                    "/v3/api-docs.yaml",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html"
+                ).permitAll()
                 // H2 Console
                 .requestMatchers("/h2-console/**").permitAll()
                 // Endpoints de autenticación (Login)
