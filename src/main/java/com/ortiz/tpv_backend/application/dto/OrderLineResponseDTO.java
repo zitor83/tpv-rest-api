@@ -1,14 +1,9 @@
 package com.ortiz.tpv_backend.application.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
@@ -20,9 +15,11 @@ public class OrderLineResponseDTO {
     private String productId;
     private String productName;
     private Integer quantity;
+    @JsonProperty("price")
     private BigDecimal unitPrice;
+    @JsonProperty("subtotal")
     private BigDecimal subTotal;
     private String notes;
-    private Map<String, List<String>> selectedIngredients;
+    private SelectedIngredientsDTO selectedIngredients;
 }
 

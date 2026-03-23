@@ -3,6 +3,7 @@ package com.ortiz.tpv_backend.application.usecase;
 import com.ortiz.tpv_backend.application.dto.OrderLineRequestDTO;
 import com.ortiz.tpv_backend.application.dto.OrderRequestDTO;
 import com.ortiz.tpv_backend.application.dto.OrderResponseDTO;
+import com.ortiz.tpv_backend.application.dto.SelectedIngredientsDTO;
 import com.ortiz.tpv_backend.application.exception.ResourceNotFoundException;
 import com.ortiz.tpv_backend.application.mapper.OrderMapper;
 import com.ortiz.tpv_backend.domain.model.Order;
@@ -67,8 +68,15 @@ public class CreateOrderUseCaseImpl implements CreateOrderUseCase {
             product.getPrice(),
             quantity,
             safeLine.getNotes(),
-            safeLine.getSelectedIngredients()
+            selectedIngredientsToMap(safeLine.getSelectedIngredients())
         );
+    }
+
+    private java.util.Map<String, java.util.List<String>> selectedIngredientsToMap(SelectedIngredientsDTO selectedIngredients) {
+        if (selectedIngredients == null) {
+            return java.util.Map.of();
+        }
+        return selectedIngredients.toMap();
     }
 }
 
