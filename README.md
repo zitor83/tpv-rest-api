@@ -1,279 +1,104 @@
-# TPV Backend REST API
+# EasyTPV - Backend REST API
 
-Backend REST para un TPV (Terminal Punto de Venta) diseñado con un enfoque en la mantenibilidad, escalabilidad y buenas prácticas de desarrollo, siguiendo los principios de la Arquitectura Hexagonal.
+Backend de punto de venta (TPV) construido con **Java 21** y **Spring Boot 3**, disenado con **Arquitectura Hexagonal** para priorizar mantenibilidad, testing y desacoplamiento.
 
-## ✅ Principios y Arquitectura
+Este servicio expone una API REST para:
+- Gestion de productos.
+- Creacion y consulta de tickets.
+- Control de gastos operativos.
+- Reportes financieros diarios y mensuales.
 
-Este proyecto está organizado para desacoplar el dominio del negocio, los casos de uso de la aplicación y la infraestructura tecnológica.
+---
 
-- **Arquitectura de Capas Estricta**:
-  - `domain`: Contiene los modelos de negocio puros y los puertos (interfaces) que definen cómo la aplicación interactúa con el exterior. No depende de ningún framework.
-  - `application`: Orquesta la lógica de negocio a través de casos de uso (`use cases`), utiliza DTOs para la transferencia de datos y define mappers para las conversiones.
-  - `infrastructure`: Implementa los adaptadores para tecnologías externas, como controladores REST, persistencia en base de datos y configuración de seguridad.
+## Caracteristicas Principales
 
-- **Seguridad por Defecto**: Configuración preparada para JWT y uso de variables de entorno para datos sensibles.
-- **Java Moderno**: Utiliza características de Java 21 para un código más limpio y robusto.
+- **Arquitectura Hexagonal:** separacion entre `domain`, `application` e `infrastructure`.
+- **Seguridad Stateless:** autenticacion/autorizacion basada en JWT.
+- **OpenAPI 3 + Swagger UI:** documentacion interactiva.
+- **MapStruct:** conversiones entre entidades y DTOs.
+- **Lombok:** reduccion de boilerplate.
+- **Jakarta Validation:** validacion de entrada en DTOs.
+- **Persistencia flexible:** H2 en local, PostgreSQL para entornos productivos.
 
-## 🛠️ Stack Tecnológico
+---
 
-- **Lenguaje**: Java 21
-- **Framework**: Spring Boot 3
-- **API**: Spring Web, Spring Validation
-- **Persistencia**: Spring Data JPA, Hibernate
-- **Bases de Datos**:
-  - **Desarrollo**: H2 (en memoria, activado por defecto)
-  - **Producción**: PostgreSQL
-- **Mapeo**: MapStruct
-- **Utilidades**: Lombok
-- **Documentación API**: OpenAPI 3 (springdoc)
-- **Build Tool**: Maven
+## Quick Start
 
-## 🚀 Cómo Empezar
+### Prerrequisitos
+- JDK 21+
+- Git
+- Maven Wrapper incluido (`./mvnw`, `./mvnw.cmd`)
 
-Este proyecto está preconfigurado para ejecutarse directamente sin necesidad de instalar software adicional como bases de datos.
-
-### Requisitos
-
-- JDK 21 o superior.
-- Git.
-
-### 1. Clonar el Repositorio
-
+### 1) Clonar repositorio
 ```bash
-git clone <URL_DEL_REPOSITORIO>
+git clone <tu-repositorio-url>
 cd tpv-backend
 ```
 
-### 2. Ejecutar la Aplicación
+### 2) Arrancar en local
+El perfil local usa H2 en memoria y carga datos de `data.sql`.
 
-El proyecto utiliza el perfil `local` por defecto, que activa una base de datos H2 en memoria. No necesitas instalar ni configurar PostgreSQL para empezar.
+```bash
+# Linux / macOS
+./mvnw spring-boot:run
 
-**Usando el Maven Wrapper (recomendado):**
+# Windows
+./mvnw.cmd spring-boot:run
+```
 
-- En macOS/Linux:
-  ```bash
-  ./mvnw spring-boot:run
-  ```
-- En Windows:
-  ```bash
-  ./mvnw.cmd spring-boot:run
-  ```
+Servidor por defecto: `http://localhost:8081`
 
-La API estará disponible en `http://localhost:8081`.
+### 3) Ejecutar pruebas
+```bash
+./mvnw clean test
+```
 
-### 3. Acceder a las Herramientas de Desarrollo
+---
 
-Una vez que la aplicación esté en marcha, puedes usar los siguientes enlaces:
+## Enlaces de Desarrollo
 
-- **Swagger UI (Documentación Interactiva de la API)**:
-  - [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
-- **Consola de la Base de Datos H2**:
-  - [http://localhost:8081/h2-console](http://localhost:8081/h2-console)
-  - **JDBC URL**: `jdbc:h2:mem:tpv`
-  - **Username**: `sa`
-  - **Password**: (dejar en blanco)
+- Swagger UI: `http://localhost:8081/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8081/v3/api-docs`
+- Consola H2: `http://localhost:8081/h2-console`
+  - JDBC URL: `jdbc:h2:mem:tpv`
+  - User: `sa`
+  - Password: vacio
 
-## 📖 API Endpoints
+---
 
-La API está documentada a través de OpenAPI y puede ser explorada con Swagger UI. A continuación se muestran los endpoints principales.
+## Documentacion del Proyecto
 
-### Productos (`/api/products`)
+- `README.md`: vision general y arranque rapido.
+- `DEVELOPMENT.md`: arquitectura, patrones y flujo de datos.
+- `API_REFERENCE.md`: contrato oficial para frontend (auth, respuestas y errores).
+- `CHANGELOG.md`: historial de cambios.
 
-#### `GET /api/products`
+---
 
-Lista todos los productos disponibles en el sistema.
+## Comandos Utiles
 
-- **Respuesta Exitosa (200 OK)**:
-  ```json
-  {
-    "status": "SUCCESS",
-    "message": "Productos obtenidos correctamente",
-    "data": [
-      {
-        "id": 1,
-        "nombre": "Producto de Ejemplo",
-        "precio": 19.99,
-        "stock": 100,
-        "familia": "General"
-      }
-    ]
-  }
-  ```
+```bash
+# Compilar proyecto
+./mvnw clean compile
 
-- **Ejemplo con `curl`**:
-  ```bash
-  curl -X GET http://localhost:8081/api/products
-  ```
+# Empaquetar JAR (sin tests)
+./mvnw clean package -DskipTests
 
-#### `POST /api/products`
+# Ejecutar JAR
+java -jar target/tpv-backend-1.0.0-SNAPSHOT.jar
+```
 
-Crea un nuevo producto en el sistema.
+---
 
-- **Cuerpo de la Petición (Request Body)**:
-  ```json
-  {
-    "nombre": "Nuevo Producto",
-    "precio": 25.50,
-    "stock": 50,
-    "familia": "Electrónica"
-  }
-  ```
+## Setup para Frontend
 
-- **Respuesta Exitosa (201 Created)**:
-  ```json
-  {
-    "status": "SUCCESS",
-    "message": "Producto creado correctamente",
-    "data": {
-      "id": 2,
-      "nombre": "Nuevo Producto",
-      "precio": 25.50,
-      "stock": 50,
-      "familia": "Electrónica"
-    }
-  }
-  ```
+1. Arranca el backend en local.
+2. Usa `POST /api/auth/login` para obtener JWT.
+3. Envia `Authorization: Bearer <token>` en endpoints protegidos.
+4. Consulta `API_REFERENCE.md` para contrato de respuestas y errores.
 
-- **Ejemplo con `curl`**:
-  ```bash
-  curl -X POST http://localhost:8081/api/products \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nombre": "Nuevo Producto",
-    "precio": 25.50,
-    "stock": 50,
-    "familia": "Electrónica"
-  }'
-  ```
+---
 
-### Tickets (`/api/orders`)
-
-### Autenticacion (`/api/auth`)
-
-#### `POST /api/auth/login`
-
-Autentica un usuario y devuelve un token JWT.
-
-- **Credenciales iniciales de desarrollo**:
-  - `username`: `admin`
-  - `password`: `admin123`
-
-- **Cuerpo de la Peticion (Request Body)**:
-  ```json
-  {
-    "username": "admin",
-    "password": "admin123"
-  }
-  ```
-
-#### `GET /api/auth/me`
-
-Recupera los datos de la sesion actual usando el token JWT enviado en el header `Authorization`.
-
-- **Headers**:
-  - `Authorization: Bearer <token>`
-
-- **Respuesta Exitosa (200 OK)**:
-  ```json
-  {
-    "success": true,
-    "message": "Usuario recuperado correctamente",
-    "data": {
-      "id": 1,
-      "username": "admin",
-      "role": "ROLE_ADMIN"
-    },
-    "timestamp": "2026-03-21T23:05:00Z"
-  }
-  ```
-
-- **Respuesta Exitosa (200 OK)**:
-  ```json
-  {
-    "success": true,
-    "message": "Autenticacion correcta",
-    "data": {
-      "token": "eyJhbGciOiJIUzI1NiJ9...",
-      "username": "admin",
-      "role": "ROLE_ADMIN"
-    },
-    "timestamp": "2026-03-21T23:00:00Z"
-  }
-  ```
-
-#### `POST /api/orders`
-
-Crea un ticket de venta. El frontend solo envia `productId` y `quantity`; el precio real se calcula en backend.
-
-- **Cuerpo de la Peticion (Request Body)**:
-  ```json
-  {
-    "lines": [
-      { "productId": 1, "quantity": 2 },
-      { "productId": 3, "quantity": 1 }
-    ]
-  }
-  ```
-
-- **Respuesta Exitosa (201 Created)**:
-  ```json
-  {
-    "success": true,
-    "message": "Ticket creado correctamente",
-    "data": {
-      "id": 1,
-      "createdAt": "2026-03-21T15:30:00",
-      "totalAmount": 20.50,
-      "lines": [
-        {
-          "productId": 1,
-          "productName": "Hamburguesa Clasica",
-          "quantity": 2,
-          "unitPrice": 8.50,
-          "subTotal": 17.00
-        }
-      ]
-    },
-    "timestamp": "2026-03-21T15:30:01Z"
-  }
-  ```
-
-#### `GET /api/orders/{id}`
-
-Obtiene el detalle completo de un ticket por identificador.
-
-#### `GET /api/orders`
-
-Lista todos los tickets de venta.
-
-## 🧪 Cómo Ejecutar los Tests
-
-> Nota: excepto documentacion y autenticacion (`/api/auth/**`), el resto de rutas requiere JWT.
-
-El proyecto incluye tests unitarios que también utilizan una base de datos H2 en memoria.
-
-- En macOS/Linux:
-  ```bash
-  ./mvnw test
-  ```
-- En Windows:
-  ```bash
-  ./mvnw.cmd test
-  ```
-
-## 🌐 Ejecución en un Entorno de Producción
-
-Para ejecutar la aplicación contra una base de datos PostgreSQL real (por ejemplo, en un servidor de producción), necesitarás configurar las siguientes variables de entorno:
-
-- `SPRING_PROFILES_ACTIVE`: `prod` (o cualquier otro perfil que no sea `local`)
-- `DB_URL`: La URL JDBC de tu base de datos PostgreSQL.
-- `DB_USERNAME`: El usuario de la base de datos.
-- `DB_PASSWORD`: La contraseña del usuario.
-- `JWT_SECRET`: Un secreto largo y seguro para firmar los tokens JWT.
-
-## 🗺️ Próximos Pasos
-
-- [ ] Incorporar refresh token y revocacion de token.
-- [ ] Incorporar migraciones de base de datos (Flyway o Liquibase) para gestionar cambios en el esquema.
-- [ ] Aumentar la cobertura de tests con tests de integración por endpoint.
-- [ ] Endurecer la seguridad: roles/permisos, limitación de peticiones (rate limiting) y configuración de CORS por entorno.
+**Version:** 1.0.0
+**Spring Boot:** 3.4.x
+**Java:** 21

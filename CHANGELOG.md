@@ -1,11 +1,17 @@
 # Changelog
 
-Todos los cambios importantes de este proyecto se documentaran en este archivo.
+> Registro de cambios relevantes de `tpv-backend`.
 
-El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/),
-y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
+Este archivo sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y versionado [Semantic Versioning](https://semver.org/lang/es/).
+
+---
 
 ## [Unreleased]
+
+### Added
+- Pendiente de nuevas entradas.
+
+---
 
 ## [0.1.0] - 2026-03-20
 
@@ -30,6 +36,7 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 - Controlador REST `ProductController` con endpoints `GET /api/products` y `POST /api/products`.
 - Wrapper de respuesta `ApiResponse<T>` para respuestas estandarizadas.
 
+---
+
 [Unreleased]: https://github.com/TU_USUARIO/tpv-rest-api/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/TU_USUARIO/tpv-rest-api/releases/tag/v0.1.0
-
