@@ -1,18 +1,18 @@
 package com.ortiz.tpv_backend.infrastructure.persistence.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import com.ortiz.tpv_backend.infrastructure.persistence.converter.JsonListConverter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class ProductEntity {
     @Builder.Default
     private boolean available = true;
 
-    @JdbcTypeCode(SqlTypes.JSON)
+    @Convert(converter = JsonListConverter.class)
     @Column(name = "default_ingredients", nullable = false)
     @Builder.Default
     private List<String> defaultIngredients = new ArrayList<>();
