@@ -54,6 +54,15 @@ public class JwtAdapter implements TokenProviderPort {
             .getPayload()
             .getSubject();
     }
+    @Override
+    public String extractRole(String token) {
+        return Jwts.parser()
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("role", String.class);
+    }
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));

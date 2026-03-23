@@ -34,14 +34,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = getJwtFromRequest(request);
 
         if (StringUtils.hasText(token)
-            && tokenProviderPort.isValid(token)
-            && SecurityContextHolder.getContext().getAuthentication() == null) {
+                && tokenProviderPort.isValid(token)
+                && SecurityContextHolder.getContext().getAuthentication() == null) {
+
             String username = tokenProviderPort.extractUsername(token);
+            String role = tokenProviderPort.extractRole(token); // <-- Extraemos el rol real
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                username,
-                null,
-                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+                    username,
+                    null,
+                    List.of(new SimpleGrantedAuthority(role)) // <-- Asignamos el rol real
             );
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
