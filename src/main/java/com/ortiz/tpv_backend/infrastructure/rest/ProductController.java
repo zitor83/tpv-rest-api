@@ -20,7 +20,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
-@Tag(name = "Products", description = "Endpoints para gestionar el catálogo de productos del TPV")
+@Tag(name = "Products", description = "Gestiona el catalogo de productos disponibles para la venta en el TPV.")
 public class ProductController {
 
     private final CreateProductUseCase createProductUseCase;
@@ -29,7 +29,7 @@ public class ProductController {
     @GetMapping
     @Operation(
         summary = "Listar todos los productos",
-        description = "Obtiene el listado completo de productos disponibles del catálogo, incluyendo nombre, precio, descripción e ingredientes por defecto.",
+        description = "Recupera el catalogo completo de productos activos, incluyendo identificador, nombre, precio, descripcion e ingredientes por defecto que usaran los tickets.",
         tags = {"Products"}
     )
     @ApiResponses(value = {
@@ -51,7 +51,7 @@ public class ProductController {
     @PostMapping
     @Operation(
         summary = "Crear nuevo producto",
-        description = "Crea un nuevo producto en el catálogo con nombre, precio, descripción e ingredientes por defecto.",
+        description = "Crea un producto en el catalogo a partir de los datos enviados en el cuerpo de la peticion. Valida campos obligatorios y devuelve el recurso creado con su identificador.",
         tags = {"Products"}
     )
     @ApiResponses(value = {

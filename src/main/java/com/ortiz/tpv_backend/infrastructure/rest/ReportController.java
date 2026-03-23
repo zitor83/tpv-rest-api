@@ -20,7 +20,7 @@ import java.time.format.DateTimeParseException;
 @RestController
 @RequestMapping("/api/reports")
 @RequiredArgsConstructor
-@Tag(name = "Financial Reports", description = "Endpoints para obtener reportes financieros diarios y mensuales del TPV")
+@Tag(name = "Financial Reports", description = "Expone reportes financieros consolidados para analisis diario y mensual del TPV.")
 public class ReportController {
 
     private final GetDailyReportUseCase getDailyReportUseCase;
@@ -29,7 +29,7 @@ public class ReportController {
     @GetMapping("/daily/{date}")
     @Operation(
         summary = "Obtener reporte diario",
-        description = "Obtiene el reporte financiero de un día específico, incluyendo total de ventas, gastos y ganancia neta.",
+        description = "Genera el reporte financiero de una fecha (YYYY-MM-DD) con ventas, gastos y utilidad neta del dia para cierre operativo.",
         tags = {"Financial Reports"}
     )
     @SecurityRequirement(name = "bearerAuth")
@@ -80,7 +80,7 @@ public class ReportController {
     @GetMapping("/monthly")
     @Operation(
         summary = "Obtener reporte mensual",
-        description = "Obtiene el reporte financiero de un mes específico, incluyendo total de ventas, gastos, ganancia neta y desglose diario.",
+        description = "Genera el reporte financiero de un mes usando year y month como filtros obligatorios. Incluye totales mensuales y desglose diario para analitica.",
         tags = {"Financial Reports"}
     )
     @SecurityRequirement(name = "bearerAuth")

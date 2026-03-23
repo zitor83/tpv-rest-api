@@ -25,7 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
-@Tag(name = "Orders", description = "Endpoints para gestionar tickets/órdenes de venta. Registra productos, cantidades y calcula totales en el backend.")
+@Tag(name = "Orders", description = "Gestiona tickets de venta, incluyendo creacion, consulta por id y listado con filtros operativos.")
 public class OrderController {
 
     private final CreateOrderUseCase createOrderUseCase;
@@ -35,7 +35,7 @@ public class OrderController {
     @PostMapping
     @Operation(
         summary = "Crear nuevo ticket de venta",
-        description = "Crea una nueva orden de venta. El frontend envía solo IDs de productos y cantidades; el backend busca los precios reales en BD y calcula el total.",
+        description = "Registra un ticket de venta a partir de lineas con productId y cantidad. El backend recalcula importes con precios vigentes, persiste la orden y devuelve el ticket completo.",
         tags = {"Orders"}
     )
     @SecurityRequirement(name = "bearerAuth")
@@ -75,7 +75,7 @@ public class OrderController {
     @GetMapping("/{id}")
     @Operation(
         summary = "Obtener detalle de un ticket",
-        description = "Recupera el detalle completo de un ticket (órdenes + líneas de venta) por su identificador único.",
+        description = "Devuelve el detalle completo de un ticket por su identificador, incluyendo lineas, estado y total calculado para auditoria o reimpresion.",
         tags = {"Orders"}
     )
     @SecurityRequirement(name = "bearerAuth")
@@ -110,7 +110,7 @@ public class OrderController {
     @GetMapping
     @Operation(
         summary = "Listar todos los tickets",
-        description = "Obtiene el listado completo de tickets de venta. Útil para cierre de caja y reportes de ventas diarias.",
+        description = "Obtiene tickets de venta y admite filtros por date y status, junto con paginacion por page y limit. Cuando se informa date, incluye resumen agregado de ventas en la respuesta.",
         tags = {"Orders"}
     )
     @SecurityRequirement(name = "bearerAuth")

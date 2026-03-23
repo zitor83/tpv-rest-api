@@ -25,7 +25,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/expenses")
 @RequiredArgsConstructor
-@Tag(name = "Expenses", description = "Endpoints para registrar y gestionar gastos operacionales del TPV")
+@Tag(name = "Expenses", description = "Gestiona gastos operativos del negocio, incluyendo alta, consulta filtrada y eliminacion.")
 public class ExpenseController {
 
     private final CreateExpenseUseCase createExpenseUseCase;
@@ -35,7 +35,7 @@ public class ExpenseController {
     @PostMapping
     @Operation(
         summary = "Registrar nuevo gasto",
-        description = "Crea un nuevo registro de gasto operacional (suministros, mantenimiento, etc.) con fecha, monto y descripción.",
+        description = "Registra un gasto operativo con fecha, monto y descripcion. El endpoint valida datos de entrada y devuelve el gasto persistido con su identificador.",
         tags = {"Expenses"}
     )
     @SecurityRequirement(name = "bearerAuth")
@@ -68,10 +68,30 @@ public class ExpenseController {
     @GetMapping
     @Operation(
         summary = "Listar gastos",
-        description = "Obtiene gastos con filtros opcionales por fecha o por mes/año.",
+        description = "Obtiene gastos y admite filtros por date o por combinacion month/year. La respuesta incluye una seccion summary con el total acumulado y cantidad de registros.",
         tags = {"Expenses"}
     )
     @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Gastos obtenidos correctamente",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ApiResponse.class)
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Parametros invalidos: month y year deben enviarse juntos",
+            content = @Content(mediaType = "application/json")
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "No autenticado",
+            content = @Content(mediaType = "application/json")
+        )
+    })
     public ResponseEntity<ApiResponse<List<ExpenseResponseDTO>>> listExpenses(
         @RequestParam(required = false) LocalDate date,
         @RequestParam(required = false) Integer month,
@@ -112,7 +132,7 @@ public class ExpenseController {
     @DeleteMapping("/{id}")
     @Operation(
         summary = "Eliminar gasto",
-        description = "Elimina un registro de gasto por su identificador. Esta operación es permanente.",
+        description = "Elimina un gasto por su identificador de forma permanente. La operacion se usa para correcciones operativas y no admite recuperacion.",
         tags = {"Expenses"}
     )
     @SecurityRequirement(name = "bearerAuth")
