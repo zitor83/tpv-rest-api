@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
@@ -20,6 +22,16 @@ public class ListOrdersUseCaseImpl implements ListOrdersUseCase {
     @Override
     public List<OrderResponseDTO> list() {
         return orderMapper.toResponseList(orderRepositoryPort.findAll());
+    }
+
+    @Override
+    public List<OrderResponseDTO> listByDate(LocalDate date) {
+        if (date == null) {
+            throw new IllegalArgumentException("date is required");
+        }
+        return orderMapper.toResponseList(
+            orderRepositoryPort.findByDateBetween(date.atStartOfDay(), date.atTime(LocalTime.MAX))
+        );
     }
 }
 

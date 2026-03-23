@@ -17,7 +17,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -126,9 +129,57 @@ public class OrderController {
             content = @Content(mediaType = "application/json")
         )
     })
-    public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> listOrders() {
-        List<OrderResponseDTO> orders = listOrdersUseCase.list();
-        ApiResponse<List<OrderResponseDTO>> response = ApiResponse.success("Tickets obtenidos correctamente", orders);
+    public ResponseEntity<ApiResponse<List<OrderResponseDTO>>> listOrders(
+        @RequestParam(required = false) Integer page,
+        @RequestParam(required = false) Integer limit,
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) LocalDate date
+    ) {
+        List<OrderResponseDTO> orders = date != null
+            ? listOrdersUseCase.listByDate(date)
+            : listOrdersUseCase.list();
+
+        if (status != null && !status.isBlank()) {
+            String normalizedStatus = status.trim();
+            orders = orders.stream()
+                .filter(order -> order.getStatus() != null && order.getStatus().equalsIgnoreCase(normalizedStatus))
+                .toList();
+        }
+
+        if (date != null) {
+            BigDecimal total = orders.stream()
+                .map(order -> order.getTotalAmount() == null ? BigDecimal.ZERO : order.getTotalAmount())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            Map<String, Object> summary = Map.of(
+                "count", orders.size(),
+                "totalOrders", orders.size(),
+                "totalSales", total
+            );
+            ApiResponse<List<OrderResponseDTO>> response = ApiResponse.success(
+                "Tickets obtenidos correctamente",
+                orders,
+                Map.of("summary", summary)
+            );
+            return ResponseEntity.ok(response);
+        }
+
+        int safePage = page == null || page < 1 ? 1 : page;
+        int safeLimit = limit == null || limit < 1 ? 50 : limit;
+        int fromIndex = Math.min((safePage - 1) * safeLimit, orders.size());
+        int toIndex = Math.min(fromIndex + safeLimit, orders.size());
+        List<OrderResponseDTO> pagedOrders = orders.subList(fromIndex, toIndex);
+
+        Map<String, Object> pagination = Map.of(
+            "page", safePage,
+            "limit", safeLimit,
+            "total", orders.size()
+        );
+
+        ApiResponse<List<OrderResponseDTO>> response = ApiResponse.success(
+            "Tickets obtenidos correctamente",
+            pagedOrders,
+            Map.of("pagination", pagination)
+        );
         return ResponseEntity.ok(response);
     }
 }
