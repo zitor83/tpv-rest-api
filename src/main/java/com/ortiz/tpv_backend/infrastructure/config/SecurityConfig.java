@@ -22,9 +22,18 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.cors(Customizer.withDefaults());
+        
+        // Permitir acceso a documentación de API y desarrollo
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/h2-console/**").permitAll()
+            // OpenAPI 3.0 y Swagger UI
+            .requestMatchers("/v3/**").permitAll()
+            .requestMatchers("/swagger-ui/**").permitAll()
+            .requestMatchers("/swagger-ui.html").permitAll()
+            // H2 Console
+            .requestMatchers("/h2-console/**").permitAll()
+            // Resto: permitir todo (desarrollo)
             .anyRequest().permitAll());
+        
         http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
