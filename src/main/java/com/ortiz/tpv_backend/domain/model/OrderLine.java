@@ -1,11 +1,14 @@
 package com.ortiz.tpv_backend.domain.model;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+@Getter
 public final class OrderLine {
 
     private final Long id;
@@ -41,37 +44,6 @@ public final class OrderLine {
         this(id, productId, productName, unitPrice, quantity, null, null);
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getProductId() {
-        return productId;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public BigDecimal getUnitPrice() {
-        return unitPrice;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public BigDecimal getSubTotal() {
-        return subTotal;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public Map<String, List<String>> getSelectedIngredients() {
-        return selectedIngredients;
-    }
 
     private static Long validateId(Long id) {
         if (id != null && id <= 0) {

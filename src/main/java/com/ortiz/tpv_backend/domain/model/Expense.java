@@ -1,10 +1,13 @@
 package com.ortiz.tpv_backend.domain.model;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+@Getter
 public final class Expense {
 
     private final String id;
@@ -21,25 +24,6 @@ public final class Expense {
         this.createdAt = createdAt == null ? LocalDateTime.now(Clock.systemUTC()) : createdAt;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 
     private static String validateId(String id) {
         if (id == null) {

@@ -1,5 +1,7 @@
 package com.ortiz.tpv_backend.domain.model;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -8,6 +10,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
+@Getter
 public final class Order {
 
     private static final Set<String> ALLOWED_STATUS = Set.of("active", "closed", "paid");
@@ -76,49 +79,6 @@ public final class Order {
         return new Order(null, null, lines, false, null, null, null, null, null, null);
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public List<OrderLine> getLines() {
-        return lines;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public String getTableNumber() {
-        return tableNumber;
-    }
-
-    public boolean isForTakeaway() {
-        return isForTakeaway;
-    }
-
-    public String getCustomerName() {
-        return customerName;
-    }
-
-    public String getCustomNotes() {
-        return customNotes;
-    }
-
-    public String getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public BigDecimal getTip() {
-        return tip;
-    }
 
     public BigDecimal getGrandTotal() {
         return totalAmount.add(tip);

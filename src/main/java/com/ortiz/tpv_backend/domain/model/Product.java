@@ -1,9 +1,12 @@
 package com.ortiz.tpv_backend.domain.model;
 
+import lombok.Getter;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
+@Getter
 public final class Product {
 
     private final String id;
@@ -35,37 +38,6 @@ public final class Product {
         this.defaultIngredients = sanitizeIngredients(defaultIngredients);
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    public String getCategory() {
-        return category;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public boolean isAvailable() {
-        return available;
-    }
-
-    public List<String> getDefaultIngredients() {
-        return defaultIngredients;
-    }
 
     @Override
     public boolean equals(Object object) {

@@ -1,7 +1,10 @@
 package com.ortiz.tpv_backend.domain.model;
 
+import lombok.Getter;
+
 import java.util.Objects;
 
+@Getter
 public final class User {
 
     private final Long id;
@@ -16,21 +19,6 @@ public final class User {
         this.role = role == null || role.trim().isEmpty() ? "ROLE_USER" : role.trim();
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getRole() {
-        return role;
-    }
 
     private static Long validateId(Long id) {
         if (id != null && id <= 0) {
