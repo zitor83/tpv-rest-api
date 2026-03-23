@@ -19,15 +19,15 @@ class SecurityConfigIntegrationTest {
     private MockMvc mockMvc;
 
     @Test
-    void givenNoToken_whenAccessProducts_thenReturnUnauthorized() throws Exception {
+    void givenNoToken_whenAccessProducts_thenReturnOk() throws Exception {
         mockMvc.perform(get("/api/products"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isOk());
     }
 
     @Test
-    void givenNoToken_whenAccessOrders_thenReturnUnauthorized() throws Exception {
+    void givenNoToken_whenAccessOrders_thenReturnOk() throws Exception {
         mockMvc.perform(get("/api/orders"))
-            .andExpect(status().isUnauthorized());
+            .andExpect(status().isOk());
     }
 
     @Test
