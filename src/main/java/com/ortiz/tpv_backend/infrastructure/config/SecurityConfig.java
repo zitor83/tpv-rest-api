@@ -46,6 +46,11 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 // Pre-flight CORS (OPTIONS) permitido para navegadores
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                // Endpoints públicos temporales para integración MVP sin login en frontend
+                .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/orders").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/expenses").permitAll()
                 // OpenAPI 3.0 y Swagger UI
                 .requestMatchers("/v3/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 // H2 Console
