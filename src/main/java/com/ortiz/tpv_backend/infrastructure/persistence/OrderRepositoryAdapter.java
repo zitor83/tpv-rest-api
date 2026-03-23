@@ -30,13 +30,6 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
         return orderPersistenceMapper.toDomain(savedEntity);
     }
 
-    @Override
-    public Optional<Order> findById(Long id) {
-        if (id == null) {
-            return Optional.empty();
-        }
-        return findById(id.toString());
-    }
 
     @Override
     public Optional<Order> findById(String id) {

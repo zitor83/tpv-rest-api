@@ -10,19 +10,7 @@ public interface OrderRepositoryPort {
 
     Order save(Order order);
 
-    Optional<Order> findById(Long id);
-
-    default Optional<Order> findById(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            return Optional.empty();
-        }
-
-        try {
-            return findById(Long.parseLong(id.trim()));
-        } catch (NumberFormatException exception) {
-            return Optional.empty();
-        }
-    }
+    Optional<Order> findById(String id);
 
     List<Order> findAll();
 

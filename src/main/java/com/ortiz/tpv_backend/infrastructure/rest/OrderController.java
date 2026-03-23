@@ -102,7 +102,7 @@ public class OrderController {
         )
     })
     public ResponseEntity<ApiResponse<OrderResponseDTO>> getOrderById(
-        @PathVariable Long id
+        @PathVariable String id
     ) {
         OrderResponseDTO order = getOrderUseCase.getById(id);
         ApiResponse<OrderResponseDTO> response = ApiResponse.success("Ticket obtenido correctamente", order);

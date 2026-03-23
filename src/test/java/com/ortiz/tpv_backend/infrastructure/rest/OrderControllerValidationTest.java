@@ -59,7 +59,7 @@ class OrderControllerValidationTest {
 
     @Test
     void givenIllegalArgument_whenGetOrder_thenReturnBadRequestApiResponse() throws Exception {
-        when(getOrderUseCase.getById(0L)).thenThrow(new IllegalArgumentException("id must be greater than 0"));
+        when(getOrderUseCase.getById("0")).thenThrow(new IllegalArgumentException("id must be greater than 0"));
 
         mockMvc.perform(get("/api/orders/0"))
             .andExpect(status().isBadRequest())
