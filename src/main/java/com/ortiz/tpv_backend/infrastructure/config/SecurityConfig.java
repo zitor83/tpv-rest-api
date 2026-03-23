@@ -1,6 +1,9 @@
 package com.ortiz.tpv_backend.infrastructure.config;
 
+import com.ortiz.tpv_backend.infrastructure.security.CustomAccessDeniedHandler;
+import com.ortiz.tpv_backend.infrastructure.security.CustomAuthenticationEntryPoint;
 import com.ortiz.tpv_backend.infrastructure.security.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
@@ -13,16 +16,28 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import java.util.Optional;
 
 @Configuration
 @EnableWebSecurity
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SecurityConfig {
 
+    @Autowired(required = false)
+    private CustomAuthenticationEntryPoint authenticationEntryPoint;
+
+    @Autowired(required = false)
+    private CustomAccessDeniedHandler accessDeniedHandler;
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
+    public SecurityFilterChain filterChain(
+        HttpSecurity http,
+        JwtAuthenticationFilter jwtFilter
+    ) throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.cors(Customizer.withDefaults());
 
@@ -31,6 +46,8 @@ public class SecurityConfig {
 
         // 2. Protegemos las rutas
         http.authorizeHttpRequests(auth -> auth
+                // Pre-flight CORS (OPTIONS) permitido para navegadores
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // OpenAPI 3.0 y Swagger UI
                 .requestMatchers("/v3/**", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 // H2 Console
@@ -42,7 +59,16 @@ public class SecurityConfig {
 
         http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
-        // 3. Añadimos el filtro que lee el Token en cada petición
+        // 3. Configuramos handlers de errores de seguridad (si están disponibles)
+        if (authenticationEntryPoint != null && accessDeniedHandler != null) {
+            http.exceptionHandling(exceptions -> exceptions
+                    // CustomAuthenticationEntryPoint maneja errores de autenticación (401)
+                    .authenticationEntryPoint(authenticationEntryPoint)
+                    // CustomAccessDeniedHandler maneja errores de autorización (403)
+                    .accessDeniedHandler(accessDeniedHandler));
+        }
+
+        // 4. Añadimos el filtro que lee el Token en cada petición
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
