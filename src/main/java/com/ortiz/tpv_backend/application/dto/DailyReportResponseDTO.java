@@ -1,5 +1,6 @@
 package com.ortiz.tpv_backend.application.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 @Builder
 public class DailyReportResponseDTO {
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
     private BigDecimal totalSales;
     private BigDecimal totalExpenses;
