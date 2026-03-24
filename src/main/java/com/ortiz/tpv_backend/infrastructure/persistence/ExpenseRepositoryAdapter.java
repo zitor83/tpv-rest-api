@@ -8,6 +8,7 @@ import com.ortiz.tpv_backend.infrastructure.persistence.repository.ExpenseJpaRep
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -46,14 +47,32 @@ public class ExpenseRepositoryAdapter implements ExpenseRepositoryPort {
     }
 
     @Override
-    public List<Expense> findByDateBetween(LocalDateTime start, LocalDateTime end) {
-        Objects.requireNonNull(start, "start is required");
-        Objects.requireNonNull(end, "end is required");
-        if (end.isBefore(start)) {
-            throw new IllegalArgumentException("end must be greater than or equal to start");
+    public List<Expense> findByDate(LocalDate date) {
+        LocalDate safeDate = Objects.requireNonNull(date, "date is required");
+
+        LocalDateTime startInclusive = safeDate.atStartOfDay();
+        LocalDateTime endExclusive = safeDate.plusDays(1).atStartOfDay();
+
+        return expensePersistenceMapper.toDomainList(
+            expenseJpaRepository.findAllByDateGreaterThanEqualAndDateLessThan(startInclusive, endExclusive)
+        );
+    }
+
+    @Override
+    public List<Expense> findByMonthAndYear(int month, int year) {
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("month must be between 1 and 12");
+        }
+        if (year <= 0) {
+            throw new IllegalArgumentException("year must be greater than 0");
         }
 
-        return expensePersistenceMapper.toDomainList(expenseJpaRepository.findAllByDateBetween(start, end));
+        LocalDateTime startInclusive = LocalDate.of(year, month, 1).atStartOfDay();
+        LocalDateTime endExclusive = startInclusive.plusMonths(1);
+
+        return expensePersistenceMapper.toDomainList(
+            expenseJpaRepository.findAllByDateGreaterThanEqualAndDateLessThan(startInclusive, endExclusive)
+        );
     }
 
     @Override

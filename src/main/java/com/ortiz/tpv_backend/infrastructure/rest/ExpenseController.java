@@ -1,10 +1,13 @@
 package com.ortiz.tpv_backend.infrastructure.rest;
 
+import com.ortiz.tpv_backend.application.dto.ExpenseListResultDTO;
 import com.ortiz.tpv_backend.application.dto.ExpenseRequestDTO;
 import com.ortiz.tpv_backend.application.dto.ExpenseResponseDTO;
+import com.ortiz.tpv_backend.application.dto.ExpenseUpdateRequestDTO;
 import com.ortiz.tpv_backend.application.usecase.CreateExpenseUseCase;
 import com.ortiz.tpv_backend.application.usecase.DeleteExpenseUseCase;
 import com.ortiz.tpv_backend.application.usecase.ListExpensesUseCase;
+import com.ortiz.tpv_backend.application.usecase.UpdateExpenseUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,9 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -31,6 +34,7 @@ public class ExpenseController {
     private final CreateExpenseUseCase createExpenseUseCase;
     private final DeleteExpenseUseCase deleteExpenseUseCase;
     private final ListExpensesUseCase listExpensesUseCase;
+    private final UpdateExpenseUseCase updateExpenseUseCase;
 
     @PostMapping
     @Operation(
@@ -97,35 +101,63 @@ public class ExpenseController {
         @RequestParam(required = false) Integer month,
         @RequestParam(required = false) Integer year
     ) {
-        List<ExpenseResponseDTO> expenses;
+        ExpenseListResultDTO result = listExpensesUseCase.list(date, month, year);
 
-        if (date != null) {
-            expenses = listExpensesUseCase.listByDate(date);
-        } else if (month != null && year != null) {
-            expenses = listExpensesUseCase.listByMonth(year, month);
-        } else if (month != null || year != null) {
-            throw new IllegalArgumentException("month and year must be provided together");
+        ApiResponse<List<ExpenseResponseDTO>> response;
+        if (result.hasSummary()) {
+            Map<String, Object> meta = new LinkedHashMap<>();
+            meta.put("totalExpenses", result.getTotalExpenses());
+            meta.put("count", result.getCount());
+            if (month != null && year != null) {
+                meta.put("month", month);
+                meta.put("year", year);
+            }
+            response = ApiResponse.success("Gastos obtenidos correctamente", result.getExpenses(), meta);
         } else {
-            expenses = listExpensesUseCase.list();
+            response = ApiResponse.success("Gastos obtenidos correctamente", result.getExpenses());
         }
 
-        BigDecimal total = expenses.stream()
-            .map(expense -> expense.getAmount() == null ? BigDecimal.ZERO : expense.getAmount())
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return ResponseEntity.ok(response);
+    }
 
-        Map<String, Object> summary = new java.util.LinkedHashMap<>();
-        summary.put("count", expenses.size());
-        summary.put("totalExpenses", total);
-        if (month != null && year != null) {
-            summary.put("month", month);
-            summary.put("year", year);
-        }
-
-        ApiResponse<List<ExpenseResponseDTO>> response = ApiResponse.success(
-            "Gastos obtenidos correctamente",
-            expenses,
-            Map.of("summary", summary)
-        );
+    @PutMapping("/{id}")
+    @Operation(
+        summary = "Actualizar gasto",
+        description = "Actualiza monto y descripcion de un gasto existente identificado por su ID.",
+        tags = {"Expenses"}
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Gasto actualizado correctamente",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ApiResponse.class)
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Validación fallida",
+            content = @Content(mediaType = "application/json")
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "Gasto no encontrado",
+            content = @Content(mediaType = "application/json")
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "No autenticado",
+            content = @Content(mediaType = "application/json")
+        )
+    })
+    public ResponseEntity<ApiResponse<ExpenseResponseDTO>> updateExpense(
+        @PathVariable String id,
+        @Valid @RequestBody ExpenseUpdateRequestDTO requestDTO
+    ) {
+        ExpenseResponseDTO updatedExpense = updateExpenseUseCase.update(id, requestDTO);
+        ApiResponse<ExpenseResponseDTO> response = ApiResponse.success("Gasto actualizado correctamente", updatedExpense);
         return ResponseEntity.ok(response);
     }
 

@@ -1,16 +1,11 @@
 package com.ortiz.tpv_backend.application.usecase;
 
-import com.ortiz.tpv_backend.application.dto.ExpenseResponseDTO;
+import com.ortiz.tpv_backend.application.dto.ExpenseListResultDTO;
 
 import java.time.LocalDate;
-import java.util.List;
 
 public interface ListExpensesUseCase {
 
-    List<ExpenseResponseDTO> list();
-
-    List<ExpenseResponseDTO> listByDate(LocalDate date);
-
-    List<ExpenseResponseDTO> listByMonth(int year, int month);
+    ExpenseListResultDTO list(LocalDate date, Integer month, Integer year);
 }
 

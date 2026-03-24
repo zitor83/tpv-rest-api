@@ -9,5 +9,7 @@ import java.util.List;
 public interface ExpenseJpaRepository extends JpaRepository<ExpenseEntity, String> {
 
 	List<ExpenseEntity> findAllByDateBetween(LocalDateTime start, LocalDateTime end);
+
+	List<ExpenseEntity> findAllByDateGreaterThanEqualAndDateLessThan(LocalDateTime startInclusive, LocalDateTime endExclusive);
 }
 
