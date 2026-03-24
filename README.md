@@ -31,7 +31,7 @@ Este servicio expone una API REST para:
 
 ### 1) Clonar el repositorio
 
-    git clone <tu-repositorio-url>
+    git clone https://github.com/zitor83/tpv-rest-api.git
     cd tpv-backend
 
 ### 2) Arrancar en local
@@ -61,8 +61,8 @@ Una vez arrancado el servidor, tendrás acceso a:
 - 📖 **Swagger UI:** `http://localhost:8081/swagger-ui/index.html`
 - 📄 **OpenAPI JSON:** `http://localhost:8081/v3/api-docs`
 - 🗄️ **Consola H2:** `http://localhost:8081/h2-console`
-  - **JDBC URL:** `jdbc:h2:mem:tpv`
-  - **User:** `sa`
+  - **JDBC URL:** jdbc:h2:mem:tpv
+  - **User:** sa
   - **Password:** *(vacío)*
 
 ---
