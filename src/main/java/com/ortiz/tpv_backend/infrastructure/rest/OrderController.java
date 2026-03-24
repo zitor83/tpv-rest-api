@@ -2,9 +2,11 @@ package com.ortiz.tpv_backend.infrastructure.rest;
 
 import com.ortiz.tpv_backend.application.dto.OrderRequestDTO;
 import com.ortiz.tpv_backend.application.dto.OrderResponseDTO;
+import com.ortiz.tpv_backend.application.dto.OrderUpdateRequestDTO;
 import com.ortiz.tpv_backend.application.usecase.CreateOrderUseCase;
 import com.ortiz.tpv_backend.application.usecase.GetOrderUseCase;
 import com.ortiz.tpv_backend.application.usecase.ListOrdersUseCase;
+import com.ortiz.tpv_backend.application.usecase.UpdateOrderUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,6 +33,7 @@ public class OrderController {
     private final CreateOrderUseCase createOrderUseCase;
     private final GetOrderUseCase getOrderUseCase;
     private final ListOrdersUseCase listOrdersUseCase;
+    private final UpdateOrderUseCase updateOrderUseCase;
 
     @PostMapping
     @Operation(
@@ -104,6 +107,47 @@ public class OrderController {
     ) {
         OrderResponseDTO order = getOrderUseCase.getById(id);
         ApiResponse<OrderResponseDTO> response = ApiResponse.success("Ticket obtenido correctamente", order);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(
+        summary = "Actualizar ticket de venta",
+        description = "Actualiza de forma parcial un ticket existente. Permite reemplazar items o modificar estado, pago, propina y datos operativos del pedido.",
+        tags = {"Orders"}
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Ticket actualizado correctamente",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = ApiResponse.class)
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Validación fallida o datos incompatibles del pedido",
+            content = @Content(mediaType = "application/json")
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "404",
+            description = "Ticket o producto no encontrado",
+            content = @Content(mediaType = "application/json")
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "No autenticado",
+            content = @Content(mediaType = "application/json")
+        )
+    })
+    public ResponseEntity<ApiResponse<OrderResponseDTO>> updateOrder(
+        @PathVariable String id,
+        @Valid @RequestBody OrderUpdateRequestDTO requestDTO
+    ) {
+        OrderResponseDTO updatedOrder = updateOrderUseCase.update(id, requestDTO);
+        ApiResponse<OrderResponseDTO> response = ApiResponse.success("Ticket actualizado correctamente", updatedOrder);
         return ResponseEntity.ok(response);
     }
 
