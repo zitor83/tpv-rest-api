@@ -1,7 +1,7 @@
 package com.ortiz.tpv_backend.infrastructure.rest;
 
-import com.ortiz.tpv_backend.application.dto.AuthResponseDTO;
 import com.ortiz.tpv_backend.application.dto.LoginRequestDTO;
+import com.ortiz.tpv_backend.application.dto.LoginResponseDTO;
 import com.ortiz.tpv_backend.application.dto.UserResponseDTO;
 import com.ortiz.tpv_backend.application.usecase.GetMeUseCase;
 import com.ortiz.tpv_backend.application.usecase.LoginUseCase;
@@ -62,8 +62,18 @@ class AuthControllerValidationTest {
 
     @Test
     void givenValidRequest_whenLogin_thenReturnTokenWrappedInApiResponse() throws Exception {
+        LoginResponseDTO loginResponse = LoginResponseDTO.builder()
+            .token("jwt-token")
+            .expiresIn(3600L)
+            .user(LoginResponseDTO.UserData.builder()
+                .id("1")
+                .username("admin")
+                .role("ROLE_ADMIN")
+                .build())
+            .build();
+
         when(loginUseCase.execute(any(LoginRequestDTO.class)))
-            .thenReturn(new AuthResponseDTO("jwt-token", "admin", "ROLE_ADMIN"));
+            .thenReturn(loginResponse);
 
         String validRequest = """
             {
@@ -79,8 +89,10 @@ class AuthControllerValidationTest {
             .andExpect(jsonPath("$.success").value(true))
             .andExpect(jsonPath("$.message").value("Autenticación correcta"))
             .andExpect(jsonPath("$.data.token").value("jwt-token"))
-            .andExpect(jsonPath("$.data.username").value("admin"))
-            .andExpect(jsonPath("$.data.role").value("ROLE_ADMIN"))
+            .andExpect(jsonPath("$.data.expiresIn").value(3600))
+            .andExpect(jsonPath("$.data.user.id").value("1"))
+            .andExpect(jsonPath("$.data.user.username").value("admin"))
+            .andExpect(jsonPath("$.data.user.role").value("ROLE_ADMIN"))
             .andExpect(jsonPath("$.timestamp").exists());
     }
 

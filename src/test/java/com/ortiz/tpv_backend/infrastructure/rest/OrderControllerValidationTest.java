@@ -3,6 +3,7 @@ package com.ortiz.tpv_backend.infrastructure.rest;
 import com.ortiz.tpv_backend.application.usecase.CreateOrderUseCase;
 import com.ortiz.tpv_backend.application.usecase.GetOrderUseCase;
 import com.ortiz.tpv_backend.application.usecase.ListOrdersUseCase;
+import com.ortiz.tpv_backend.application.usecase.UpdateOrderUseCase;
 import com.ortiz.tpv_backend.domain.port.TokenProviderPort;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ class OrderControllerValidationTest {
 
     @MockitoBean
     private TokenProviderPort tokenProviderPort;
+
+    @MockitoBean
+    private UpdateOrderUseCase updateOrderUseCase;
 
     @Test
     void givenInvalidRequest_whenCreateOrder_thenReturnApiResponseValidationError() throws Exception {

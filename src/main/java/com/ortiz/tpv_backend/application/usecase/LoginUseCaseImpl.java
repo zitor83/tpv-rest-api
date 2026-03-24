@@ -1,7 +1,7 @@
 package com.ortiz.tpv_backend.application.usecase;
 
-import com.ortiz.tpv_backend.application.dto.AuthResponseDTO;
 import com.ortiz.tpv_backend.application.dto.LoginRequestDTO;
+import com.ortiz.tpv_backend.application.dto.LoginResponseDTO;
 import com.ortiz.tpv_backend.domain.model.User;
 import com.ortiz.tpv_backend.domain.port.PasswordEncoderPort;
 import com.ortiz.tpv_backend.domain.port.TokenProviderPort;
@@ -17,12 +17,14 @@ import java.util.Objects;
 @Transactional(readOnly = true)
 public class LoginUseCaseImpl implements LoginUseCase {
 
+    private static final long TOKEN_EXPIRATION_SECONDS = 3600L;
+
     private final UserRepositoryPort userRepositoryPort;
     private final PasswordEncoderPort passwordEncoderPort;
     private final TokenProviderPort tokenProviderPort;
 
     @Override
-    public AuthResponseDTO execute(LoginRequestDTO requestDTO) {
+    public LoginResponseDTO execute(LoginRequestDTO requestDTO) {
         LoginRequestDTO safeRequest = Objects.requireNonNull(requestDTO, "requestDTO is required");
 
         User user = userRepositoryPort.findByUsername(safeRequest.username())
@@ -33,7 +35,15 @@ public class LoginUseCaseImpl implements LoginUseCase {
         }
 
         String token = tokenProviderPort.generateToken(user);
-        return new AuthResponseDTO(token, user.getUsername(), user.getRole());
+
+        return LoginResponseDTO.builder()
+            .token(token)
+            .expiresIn(TOKEN_EXPIRATION_SECONDS)
+            .user(LoginResponseDTO.UserData.builder()
+                .id(user.getId() == null ? null : user.getId().toString())
+                .username(user.getUsername())
+                .role(user.getRole() == null ? null : user.getRole().toString())
+                .build())
+            .build();
     }
 }
-
