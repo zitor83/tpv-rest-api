@@ -1,161 +1,139 @@
-# Referencia de la API REST - EasyTPV
+
+# 📡 Referencia de la API REST - EasyTPV
 
 Documento oficial de contrato entre backend y frontend para consumo de la API.
 
 ---
 
-## 1) Estructura Estandar de Respuesta (`ApiResponse`)
+## 📦 1. Estructura Estándar de Respuesta (`ApiResponse`)
 
-Todas las respuestas del backend (exito y error) se envuelven en `ApiResponse<T>`.
+Todas las respuestas del backend (tanto de éxito como de error) se envuelven siempre en el objeto `ApiResponse<T>`.
 
-Campos base del contrato:
-- `success` (boolean)
-- `message` (string)
-- `data` (object | array | string | null)
-- `timestamp` (ISO-8601 UTC)
+**Campos base del contrato:**
+- `success` (boolean): Indica si la operación fue exitosa.
+- `message` (string): Mensaje legible para el usuario o desarrollador.
+- `data` (object | array | string | null): El payload real (datos solicitados o detalles del error).
+- `timestamp` (ISO-8601 UTC): Fecha y hora exacta de la respuesta del servidor.
 
-> Nota tecnica: el objeto `ApiResponse` tambien soporta `meta` de forma opcional, pero solo aparece cuando aplica.
+> **💡 Nota técnica:** El objeto `ApiResponse` también soporta un campo `meta` de forma opcional (útil para paginación o resúmenes), pero solo aparece cuando aplica.
 
-### Ejemplo de exito
-```json
-{
-  "success": true,
-  "message": "Operacion completada",
-  "data": {
-    "id": 1,
-    "name": "Producto ejemplo"
-  },
-  "timestamp": "2026-03-23T18:00:00.123Z"
-}
-```
+### ✅ Ejemplo de éxito (200 OK / 201 Created)
 
-### Ejemplo de error
-```json
-{
-  "success": false,
-  "message": "Error de validacion",
-  "data": {
-    "name": "El nombre es obligatorio",
-    "price": "Debe ser mayor que 0"
-  },
-  "timestamp": "2026-03-23T18:00:00.123Z"
-}
-```
+    {
+      "success": true,
+      "message": "Operación completada",
+      "data": {
+        "id": 1,
+        "name": "Producto de ejemplo"
+      },
+      "timestamp": "2026-03-23T18:00:00.123Z"
+    }
+
+### ❌ Ejemplo de error
+
+    {
+      "success": false,
+      "message": "Error de validación",
+      "data": {
+        "name": "El nombre es obligatorio",
+        "price": "Debe ser mayor que 0"
+      },
+      "timestamp": "2026-03-23T18:00:00.123Z"
+    }
 
 ---
 
-## 2) Autenticacion (JWT)
+## 🔐 2. Autenticación (JWT)
 
-### Login para obtener token
-- Endpoint: `POST /api/auth/login`
-- Resultado: token JWT en el payload de respuesta del login.
+Nuestra API es **stateless**: no utiliza sesiones en memoria del servidor. Todo se basa en el token.
 
-### Uso del token en peticiones siguientes
-Enviar el JWT en la cabecera HTTP:
+### Obtener el Token (Login)
+- **Endpoint:** `POST /api/auth/login`
+- **Resultado:** Si las credenciales son correctas, el token JWT vendrá dentro del objeto `data` de la respuesta.
 
-```http
-Authorization: Bearer <token>
-```
+### Uso del Token en peticiones siguientes
+Para acceder a los endpoints protegidos, debes inyectar el JWT en la cabecera HTTP de tu petición exactamente con este formato:
 
-La API es stateless: no usa sesion de servidor.
+    Authorization: Bearer <tu_token_aqui>
 
 ---
 
-## 3) Manejo de Errores (HTTP Codes)
+## 🚨 3. Manejo de Errores (HTTP Codes)
 
-### `400 Bad Request`
-Errores de validacion (Jakarta Validation) y errores de entrada mal formada.
+El backend está diseñado para devolver respuestas coherentes según el tipo de fallo.
 
-En validaciones, `GlobalExceptionHandler` retorna un mapa en `data` con formato:
-- clave: nombre del campo
-- valor: mensaje de validacion
+### `400 Bad Request` (Validaciones fallidas)
+Se lanza cuando falla la validación de Jakarta o hay errores de entrada mal formada.
+El `GlobalExceptionHandler` intercepta el fallo y retorna un mapa dentro de `data` donde la clave es el nombre del campo y el valor es el error.
 
-Ejemplo:
-```json
-{
-  "success": false,
-  "message": "Error de validacion",
-  "data": {
-    "email": "Debe tener un formato valido",
-    "password": "No puede estar vacio"
-  },
-  "timestamp": "2026-03-23T18:00:00.123Z"
-}
-```
+    {
+      "success": false,
+      "message": "Error de validación",
+      "data": {
+        "email": "Debe tener un formato válido",
+        "password": "No puede estar vacío"
+      },
+      "timestamp": "2026-03-23T18:00:00.123Z"
+    }
 
-### `401 Unauthorized`
-Falta token o el token es invalido/expirado.
+### `401 Unauthorized` (Problemas de Autenticación)
+Falta el token en la cabecera, tiene un formato incorrecto o ya ha expirado.
+Gestionado por nuestro `CustomAuthenticationEntryPoint`.
 
-Gestionado por `CustomAuthenticationEntryPoint` en la capa de seguridad.
+    {
+      "success": false,
+      "message": "No autorizado. Token faltante o inválido.",
+      "data": null,
+      "timestamp": "2026-03-23T18:00:00.123Z"
+    }
 
-Ejemplo de mensaje:
-```json
-{
-  "success": false,
-  "message": "No autorizado. Token faltante o inválido.",
-  "data": null,
-  "timestamp": "2026-03-23T18:00:00.123Z"
-}
-```
+### `403 Forbidden` (Problemas de Autorización)
+El token es perfectamente válido, pero el usuario no tiene los permisos o el rol necesario para ejecutar esa acción específica.
+Gestionado por nuestro `CustomAccessDeniedHandler`.
 
-### `403 Forbidden`
-El token es valido pero el usuario no tiene permisos suficientes para ese recurso.
+    {
+      "success": false,
+      "message": "Acceso denegado. No tienes permisos para acceder a este recurso.",
+      "data": null,
+      "timestamp": "2026-03-23T18:00:00.123Z"
+    }
 
-Gestionado por `CustomAccessDeniedHandler`.
+### `404 Not Found` (Recurso no encontrado)
+El ID solicitado no existe en la base de datos (por ejemplo, al lanzar un `ResourceNotFoundException` desde un Caso de Uso).
 
-Ejemplo de mensaje:
-```json
-{
-  "success": false,
-  "message": "Acceso denegado. No tienes permisos para acceder a este recurso.",
-  "data": null,
-  "timestamp": "2026-03-23T18:00:00.123Z"
-}
-```
+    {
+      "success": false,
+      "message": "Recurso no encontrado",
+      "data": null,
+      "timestamp": "2026-03-23T18:00:00.123Z"
+    }
 
-### `404 Not Found`
-Recurso no encontrado (por ejemplo, `ResourceNotFoundException`).
+### `500 Internal Server Error` (Fallo crítico)
+Error inesperado del servidor (caída de base de datos, null pointer, etc.).
+El `GlobalExceptionHandler` lo atrapa para evitar exponer la traza de Java completa y devuelve un mensaje genérico.
 
-Ejemplo:
-```json
-{
-  "success": false,
-  "message": "Recurso no encontrado",
-  "data": null,
-  "timestamp": "2026-03-23T18:00:00.123Z"
-}
-```
-
-### `500 Internal Server Error`
-Error inesperado del servidor.
-
-`GlobalExceptionHandler` devuelve mensaje generico y detalle tecnico en `data`.
-
-Ejemplo:
-```json
-{
-  "success": false,
-  "message": "Error interno del servidor",
-  "data": "Detalle tecnico del error",
-  "timestamp": "2026-03-23T18:00:00.123Z"
-}
-```
+    {
+      "success": false,
+      "message": "Error interno del servidor",
+      "data": "Detalle técnico del error (solo en desarrollo)",
+      "timestamp": "2026-03-23T18:00:00.123Z"
+    }
 
 ---
 
-## 4) Documentacion Interactiva
+## 📖 4. Documentación Interactiva
 
-Para ver el catalogo completo de endpoints, payloads y probar peticiones en vivo:
+Para ver el catálogo completo de endpoints, explorar los esquemas exactos de los DTOs y probar las peticiones en vivo contra el servidor local:
 
-- `http://localhost:8081/swagger-ui/index.html`
+Visita: `http://localhost:8081/swagger-ui/index.html`
 
 ---
 
-## 5) Referencia Tecnica de Implementacion
+## ⚙️ 5. Referencia Técnica de Implementación
 
-Este contrato se alinea con el comportamiento actual implementado en:
-- `src/main/java/com/ortiz/tpv_backend/infrastructure/rest/ApiResponse.java`
-- `src/main/java/com/ortiz/tpv_backend/infrastructure/config/SecurityConfig.java`
-- `src/main/java/com/ortiz/tpv_backend/infrastructure/security/CustomAuthenticationEntryPoint.java`
-- `src/main/java/com/ortiz/tpv_backend/infrastructure/security/CustomAccessDeniedHandler.java`
-- `src/main/java/com/ortiz/tpv_backend/infrastructure/rest/GlobalExceptionHandler.java`
+Para los desarrolladores backend, este contrato se alinea con el comportamiento actual implementado en las siguientes clases de infraestructura:
+- `infrastructure/rest/ApiResponse.java`
+- `infrastructure/config/SecurityConfig.java`
+- `infrastructure/security/CustomAuthenticationEntryPoint.java`
+- `infrastructure/security/CustomAccessDeniedHandler.java`
+- `infrastructure/rest/GlobalExceptionHandler.java`
