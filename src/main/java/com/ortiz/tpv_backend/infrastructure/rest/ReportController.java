@@ -2,8 +2,10 @@ package com.ortiz.tpv_backend.infrastructure.rest;
 
 import com.ortiz.tpv_backend.application.dto.DailyReportResponseDTO;
 import com.ortiz.tpv_backend.application.dto.MonthlyReportResponseDTO;
+import com.ortiz.tpv_backend.application.dto.SummaryReportResponseDTO;
 import com.ortiz.tpv_backend.application.usecase.GetDailyReportUseCase;
 import com.ortiz.tpv_backend.application.usecase.GetMonthlyReportUseCase;
+import com.ortiz.tpv_backend.application.usecase.GetSummaryReportUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,6 +27,7 @@ public class ReportController {
 
     private final GetDailyReportUseCase getDailyReportUseCase;
     private final GetMonthlyReportUseCase getMonthlyReportUseCase;
+    private final GetSummaryReportUseCase getSummaryReportUseCase;
 
     @GetMapping("/daily/{date}")
     @Operation(
@@ -118,6 +121,51 @@ public class ReportController {
     ) {
         MonthlyReportResponseDTO report = getMonthlyReportUseCase.getByMonth(year, month);
         ApiResponse<MonthlyReportResponseDTO> response = ApiResponse.success("Reporte mensual obtenido correctamente", report);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/summary")
+    @Operation(
+        summary = "Obtener reporte de resumen por rango",
+        description = "Genera resumen financiero consolidado entre startDate y endDate (YYYY-MM-DD), incluyendo ventas, gastos, metodos de pago y margen de beneficio.",
+        tags = {"Financial Reports"}
+    )
+    @SecurityRequirement(name = "bearerAuth")
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Reporte de resumen obtenido exitosamente",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = com.ortiz.tpv_backend.infrastructure.rest.ApiResponse.class)
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Parámetros de fecha inválidos",
+            content = @Content(
+                mediaType = "application/json",
+                schema = @Schema(implementation = com.ortiz.tpv_backend.infrastructure.rest.ApiResponse.class)
+            )
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "No autenticado. Se requiere token JWT válido",
+            content = @Content(mediaType = "application/json")
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "403",
+            description = "No autorizado para acceder a este recurso",
+            content = @Content(mediaType = "application/json")
+        )
+    })
+    public ResponseEntity<ApiResponse<SummaryReportResponseDTO>> getSummaryReport(
+        @RequestParam("startDate") LocalDate startDate,
+        @RequestParam("endDate") LocalDate endDate
+    ) {
+        SummaryReportResponseDTO report = getSummaryReportUseCase.getByDateRange(startDate, endDate);
+        ApiResponse<SummaryReportResponseDTO> response = ApiResponse.success("Reporte de resumen obtenido correctamente", report);
 
         return ResponseEntity.ok(response);
     }

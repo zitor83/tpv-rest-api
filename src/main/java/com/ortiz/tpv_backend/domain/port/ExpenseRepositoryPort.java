@@ -19,18 +19,7 @@ public interface ExpenseRepositoryPort {
 
     List<Expense> findByMonthAndYear(int month, int year);
 
-    default List<Expense> findByDateBetween(LocalDateTime start, LocalDateTime end) {
-        if (start == null || end == null) {
-            throw new IllegalArgumentException("start and end are required");
-        }
-        if (end.isBefore(start)) {
-            throw new IllegalArgumentException("end must be greater than or equal to start");
-        }
-
-        return findAll().stream()
-            .filter(expense -> !expense.getDate().isBefore(start) && !expense.getDate().isAfter(end))
-            .toList();
-    }
+    List<Expense> findByDateBetween(LocalDateTime start, LocalDateTime end);
 
     void deleteById(String id);
 }

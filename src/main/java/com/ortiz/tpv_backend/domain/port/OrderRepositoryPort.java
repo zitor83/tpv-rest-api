@@ -14,17 +14,6 @@ public interface OrderRepositoryPort {
 
     List<Order> findAll();
 
-    default List<Order> findByDateBetween(LocalDateTime start, LocalDateTime end) {
-        if (start == null || end == null) {
-            throw new IllegalArgumentException("start and end are required");
-        }
-        if (end.isBefore(start)) {
-            throw new IllegalArgumentException("end must be greater than or equal to start");
-        }
-
-        return findAll().stream()
-            .filter(order -> !order.getCreatedAt().isBefore(start) && !order.getCreatedAt().isAfter(end))
-            .toList();
-    }
+    List<Order> findByDateBetween(LocalDateTime start, LocalDateTime end);
 }
 

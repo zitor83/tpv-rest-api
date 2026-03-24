@@ -76,6 +76,17 @@ public class ExpenseRepositoryAdapter implements ExpenseRepositoryPort {
     }
 
     @Override
+    public List<Expense> findByDateBetween(LocalDateTime start, LocalDateTime end) {
+        Objects.requireNonNull(start, "start is required");
+        Objects.requireNonNull(end, "end is required");
+        if (end.isBefore(start)) {
+            throw new IllegalArgumentException("end must be greater than or equal to start");
+        }
+
+        return expensePersistenceMapper.toDomainList(expenseJpaRepository.findAllByDateBetween(start, end));
+    }
+
+    @Override
     public void deleteById(String id) {
         if (id == null || id.trim().isEmpty()) {
             throw new IllegalArgumentException("id is required");
