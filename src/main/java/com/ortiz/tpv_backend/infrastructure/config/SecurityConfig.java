@@ -6,8 +6,7 @@ import com.ortiz.tpv_backend.infrastructure.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,7 +21,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@Order(Ordered.HIGHEST_PRECEDENCE)
 public class SecurityConfig {
 
     @Autowired(required = false)
@@ -32,7 +30,8 @@ public class SecurityConfig {
     private CustomAccessDeniedHandler accessDeniedHandler;
 
     @Bean
-    public SecurityFilterChain filterChain(
+    @Profile("local")
+    public SecurityFilterChain localFilterChain(
         HttpSecurity http,
         JwtAuthenticationFilter jwtFilter
     ) throws Exception {
@@ -42,11 +41,11 @@ public class SecurityConfig {
         // 1. Configuramos la sesión como Stateless (esencial para JWT)
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // 2. Protegemos las rutas
+        // 2. Perfil local: endpoints MVP abiertos para integración de frontend sin login.
         http.authorizeHttpRequests(auth -> auth
                 // Pre-flight CORS (OPTIONS) permitido para navegadores
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                // Endpoints públicos temporales para integración MVP sin login en frontend
+                // Endpoints públicos del MVP
                 .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/orders").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/orders").permitAll()
@@ -61,10 +60,9 @@ public class SecurityConfig {
                 ).permitAll()
                 // H2 Console
                 .requestMatchers("/h2-console/**").permitAll()
-                // Endpoints de autenticación (Login)
+                // Endpoints de autenticación
                 .requestMatchers("/api/auth/login").permitAll()
-                // El resto de la API requiere estar logueado
-                .anyRequest().authenticated());
+                .anyRequest().permitAll());
 
         http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
@@ -80,6 +78,41 @@ public class SecurityConfig {
         // 4. Añadimos el filtro que lee el Token en cada petición
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
+        return http.build();
+    }
+
+    @Bean
+    @Profile("!local")
+    public SecurityFilterChain securedFilterChain(
+        HttpSecurity http,
+        JwtAuthenticationFilter jwtFilter
+    ) throws Exception {
+        http.csrf(csrf -> csrf.disable());
+        http.cors(Customizer.withDefaults());
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http.authorizeHttpRequests(auth -> auth
+            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers(
+                "/v3/api-docs",
+                "/v3/api-docs/**",
+                "/v3/api-docs.yaml",
+                "/swagger-ui/**",
+                "/swagger-ui.html"
+            ).permitAll()
+            .requestMatchers("/h2-console/**").permitAll()
+            .requestMatchers("/api/auth/login").permitAll()
+            .anyRequest().authenticated());
+
+        http.headers(headers -> headers.frameOptions(frame -> frame.disable()));
+
+        if (authenticationEntryPoint != null && accessDeniedHandler != null) {
+            http.exceptionHandling(exceptions -> exceptions
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler));
+        }
+
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
