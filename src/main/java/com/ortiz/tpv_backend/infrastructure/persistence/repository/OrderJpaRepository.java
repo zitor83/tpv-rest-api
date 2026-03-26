@@ -20,7 +20,14 @@ public interface OrderJpaRepository extends JpaRepository<OrderEntity, String> {
     List<OrderEntity> findAllByOrderByCreatedAtDesc();
 
     @EntityGraph(attributePaths = "lines")
+    List<OrderEntity> findAllByStatusIgnoreCaseOrderByCreatedAtDesc(String status);
+
+    @EntityGraph(attributePaths = "lines")
     @Query("select o from OrderEntity o where o.createdAt between :start and :end order by o.createdAt asc")
     List<OrderEntity> findAllByDateBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @EntityGraph(attributePaths = "lines")
+    @Query("select o from OrderEntity o where o.createdAt between :start and :end and lower(o.status) = lower(:status) order by o.createdAt asc")
+    List<OrderEntity> findAllByDateBetweenAndStatus(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end, @Param("status") String status);
 }
 

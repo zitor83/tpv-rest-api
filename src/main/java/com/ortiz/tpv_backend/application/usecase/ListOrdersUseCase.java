@@ -10,5 +10,7 @@ public interface ListOrdersUseCase {
     List<OrderResponseDTO> list();
 
     List<OrderResponseDTO> listByDate(LocalDate date);
+
+    List<OrderResponseDTO> list(LocalDate date, String status);
 }
 

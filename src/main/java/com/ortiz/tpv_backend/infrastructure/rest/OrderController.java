@@ -179,16 +179,7 @@ public class OrderController {
         @RequestParam(required = false) String status,
         @RequestParam(required = false) LocalDate date
     ) {
-        List<OrderResponseDTO> orders = date != null
-            ? listOrdersUseCase.listByDate(date)
-            : listOrdersUseCase.list();
-
-        if (status != null && !status.isBlank()) {
-            String normalizedStatus = status.trim();
-            orders = orders.stream()
-                .filter(order -> order.getStatus() != null && order.getStatus().equalsIgnoreCase(normalizedStatus))
-                .toList();
-        }
+        List<OrderResponseDTO> orders = listOrdersUseCase.list(date, status);
 
         if (date != null) {
             BigDecimal total = orders.stream()

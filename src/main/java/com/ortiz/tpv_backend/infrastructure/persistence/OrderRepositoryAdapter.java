@@ -47,6 +47,16 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
     }
 
     @Override
+    public List<Order> findByStatus(String status) {
+        if (status == null || status.trim().isEmpty()) {
+            return findAll();
+        }
+        return orderPersistenceMapper.toDomainList(
+            orderJpaRepository.findAllByStatusIgnoreCaseOrderByCreatedAtDesc(status.trim())
+        );
+    }
+
+    @Override
     public List<Order> findByDateBetween(LocalDateTime start, LocalDateTime end) {
         Objects.requireNonNull(start, "start is required");
         Objects.requireNonNull(end, "end is required");
@@ -55,6 +65,22 @@ public class OrderRepositoryAdapter implements OrderRepositoryPort {
         }
 
         return orderPersistenceMapper.toDomainList(orderJpaRepository.findAllByDateBetween(start, end));
+    }
+
+    @Override
+    public List<Order> findByDateBetweenAndStatus(LocalDateTime start, LocalDateTime end, String status) {
+        Objects.requireNonNull(start, "start is required");
+        Objects.requireNonNull(end, "end is required");
+        if (end.isBefore(start)) {
+            throw new IllegalArgumentException("end must be greater than or equal to start");
+        }
+        if (status == null || status.trim().isEmpty()) {
+            return findByDateBetween(start, end);
+        }
+
+        return orderPersistenceMapper.toDomainList(
+            orderJpaRepository.findAllByDateBetweenAndStatus(start, end, status.trim())
+        );
     }
 }
 

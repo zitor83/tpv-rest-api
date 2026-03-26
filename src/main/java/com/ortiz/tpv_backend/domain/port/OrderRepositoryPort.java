@@ -14,6 +14,10 @@ public interface OrderRepositoryPort {
 
     List<Order> findAll();
 
+    List<Order> findByStatus(String status);
+
     List<Order> findByDateBetween(LocalDateTime start, LocalDateTime end);
+
+    List<Order> findByDateBetweenAndStatus(LocalDateTime start, LocalDateTime end, String status);
 }
 

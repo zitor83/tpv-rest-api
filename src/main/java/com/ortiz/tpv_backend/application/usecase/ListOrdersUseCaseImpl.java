@@ -33,5 +33,32 @@ public class ListOrdersUseCaseImpl implements ListOrdersUseCase {
             orderRepositoryPort.findByDateBetween(date.atStartOfDay(), date.atTime(LocalTime.MAX))
         );
     }
+
+    @Override
+    public List<OrderResponseDTO> list(LocalDate date, String status) {
+        String normalizedStatus = normalizeStatus(status);
+
+        if (date != null && normalizedStatus != null) {
+            return orderMapper.toResponseList(
+                orderRepositoryPort.findByDateBetweenAndStatus(date.atStartOfDay(), date.atTime(LocalTime.MAX), normalizedStatus)
+            );
+        }
+        if (date != null) {
+            return listByDate(date);
+        }
+        if (normalizedStatus != null) {
+            return orderMapper.toResponseList(orderRepositoryPort.findByStatus(normalizedStatus));
+        }
+
+        return list();
+    }
+
+    private static String normalizeStatus(String status) {
+        if (status == null) {
+            return null;
+        }
+        String normalized = status.trim();
+        return normalized.isEmpty() ? null : normalized;
+    }
 }
 
