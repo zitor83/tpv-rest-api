@@ -34,3 +34,13 @@ build/
 
 ### Variables de entorno
 .env
+.env.*
+!.env.example
+
+### Secretos y certificados
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+secrets/

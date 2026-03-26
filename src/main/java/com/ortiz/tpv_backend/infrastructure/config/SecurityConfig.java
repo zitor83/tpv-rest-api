@@ -100,7 +100,6 @@ public class SecurityConfig {
                 "/swagger-ui/**",
                 "/swagger-ui.html"
             ).permitAll()
-            .requestMatchers("/h2-console/**").permitAll()
             .requestMatchers("/api/auth/login").permitAll()
             .anyRequest().authenticated());
 
